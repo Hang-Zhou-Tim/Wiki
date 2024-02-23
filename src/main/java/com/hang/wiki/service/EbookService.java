@@ -7,6 +7,7 @@ import com.hang.wiki.resp.EbookResp;
 import com.hang.wiki.util.CopyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 
@@ -18,7 +19,9 @@ public class EbookService {
     public List<EbookResp> list(String name){
         EbookExample ebookExample = new EbookExample();
         EbookExample.Criteria criteria = ebookExample.createCriteria();
-        criteria.andNameLike("%" + name + "%");
+        if(!ObjectUtils.isEmpty(name)) {
+            criteria.andNameLike("%" + name + "%");
+        }
         List<Ebook> ebooks = EbookMapper.selectByExample(ebookExample);
 
         List<EbookResp> respList = CopyUtil.copyList(ebooks, EbookResp.class);
