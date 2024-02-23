@@ -9,8 +9,8 @@
 
 <script>
 import {defineComponent} from 'vue';
-import HeaderComponent from '@/components/HeaderComponent.vue';
-import FooterComponent from '@/components/FooterComponent.vue';
+import HeaderComponent from '@/components/header-component.vue';
+import FooterComponent from '@/components/footer-component.vue';
 
 export default defineComponent({
     name: "app",
