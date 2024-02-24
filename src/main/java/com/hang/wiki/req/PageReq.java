@@ -1,7 +1,12 @@
 package com.hang.wiki.req;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+
 public class PageReq {
     private int page;
+    @NotNull(message="Page Size should Not Null!")
+    @Max(value= 100, message = "Query size should not exceed 100")
     private int size;
 
     public int getPage() {
