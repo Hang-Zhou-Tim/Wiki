@@ -27,31 +27,58 @@ export class Tool {
     }
   }
 
-  /**
-   * 使用递归将数组转为树形结构
-   * 父ID属性为parent
-   */
-  public static array2Tree (array: any, parentId: number) {
+
+  public static array2TreeNew (array: any, parentId: number) {
     if (Tool.isEmpty(array)) {
       return [];
     }
 
-    const result = [];
+    const result= new Map();
     for (let i = 0; i < array.length; i++) {
       const c = array[i];
-      // console.log(Number(c.parent), Number(parentId));
-      if (Number(c.parent) === Number(parentId)) {
-        result.push(c);
-
-        // 递归查看当前节点对应的子节点
-        const children = Tool.array2Tree(array, c.id);
-        if (Tool.isNotEmpty(children)) {
-          c.children = children;
-        }
+      if (result.has(c.parent)) {
+        result.get(c.parent).push(c);
+      } else {
+        const list = [];
+        list.push(c);
+        result.set(c.parent, list);
       }
     }
-    return result;
+
+    const res = result.get(parentId);
+    for (let i = 0; i < array.length; i++) {
+      const c = array[i];
+      if(result.has(c.id)){
+        c.children = result.get(c.id);
+      }
+    }
+
+    return res;
   }
+  /**
+   * This implementation is not effective since each recursive call iterate an array, taking O(n^2).
+   */
+  // public static array2Tree (array: any, parentId: number) {
+  //   if (Tool.isEmpty(array)) {
+  //     return [];
+  //   }
+  //
+  //   const result  = [];
+  //   for (let i = 0; i < array.length; i++) {
+  //     const c = array[i];
+  //     // console.log(Number(c.parent), Number(parentId));
+  //     if (Number(c.parent) === Number(parentId)) {
+  //       result.push(c);
+  //
+  //       // 递归查看当前节点对应的子节点
+  //       const children = Tool.array2Tree(array, c.id);
+  //       if (Tool.isNotEmpty(children)) {
+  //         c.children = children;
+  //       }
+  //     }
+  //   }
+  //   return result;
+  // }
 
   /**
    * 随机生成[len]长度的[radix]进制数
