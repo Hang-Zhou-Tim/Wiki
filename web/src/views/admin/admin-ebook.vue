@@ -23,7 +23,7 @@
         -->
         <template v-slot:action="{ text, record }">
           <a-space size="small">
-            <a-button type="primary">
+            <a-button type="primary" @click = "edit(record)">
               Edit
             </a-button>
             <a-button type="danger">
@@ -34,15 +34,43 @@
       </a-table>
     </a-layout-content>
   </a-layout>
+
+  <a-modal
+    title="Ebook Table"
+    v-model:visible="modalVisible"
+    :confirm-loading="modalLoading"
+    @ok="handleModalOk"
+  >
+    <a-form :model="ebook" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+      <a-form-item label="Cover">
+        <a-input v-model:value="ebook.cover" />
+      </a-form-item>
+      <a-form-item label="Name">
+        <a-input v-model:value="ebook.name" />
+      </a-form-item>
+      <a-form-item label="Category1">
+        <a-input v-model:value="ebook.category1Id" />
+      </a-form-item>
+      <a-form-item label="Category2">
+        <a-input v-model:value="ebook.category2Id" />
+      </a-form-item>
+
+      <a-form-item label="Description">
+        <a-input v-model:value="ebook.description" type="textarea" />
+      </a-form-item>
+    </a-form>
+  </a-modal>
 </template>
 
 <script lang="ts">
 import {defineComponent, onMounted, ref} from 'vue';
 import axios from 'axios';
+import {message} from "ant-design-vue";
 
 export default defineComponent({
   name: 'AdminEbook',
   setup() {
+
     const ebooks = ref();
     const pagination = ref({
       current: 1,
@@ -120,6 +148,42 @@ export default defineComponent({
       });
     };
 
+    //Table form
+    const ebook = ref({
+      name : "default",
+      category1Id : 1,
+      category2Id : 2,
+      cover: "",
+      description : ""
+
+    });
+    const modalVisible = ref(false);
+    const modalLoading = ref(false);
+    const handleModalOk = () => {
+      modalLoading.value = true;
+
+      axios.post("/ebook/save", ebook.value).then((response) => {
+        modalLoading.value = false;
+        const data = response.data; // data = commonResp
+        if (data.success) {
+          modalVisible.value = false;
+
+          // 重新加载列表
+          handleQuery({
+            page: pagination.value.current,
+            size: pagination.value.pageSize,
+          });
+        } else {
+          message.error(data.message);
+        }
+      });
+    }
+
+    const edit = (record: any) => {
+      modalVisible.value = true;
+      ebook.value = record;
+    };
+
     onMounted(() => {
       handleQuery({
         page:pagination.value.current,
@@ -132,7 +196,12 @@ export default defineComponent({
       pagination,
       columns,
       loading,
-      handleTableChange
+      handleTableChange,
+      edit,
+      modalVisible,
+      modalLoading,
+      handleModalOk,
+      ebook
     }
   }
 });
