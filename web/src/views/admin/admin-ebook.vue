@@ -3,6 +3,25 @@
       <a-layout-content
         :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
       >
+        <p>
+          <a-form layout="inline" :model="queryForm">
+            <a-form-item>
+              <a-input v-model:value="queryForm.name" placeholder="Name">
+              </a-input>
+            </a-form-item>
+            <a-form-item>
+              <a-button type="primary" @click="handleQuery({page: 1, size: pagination.pageSize})">
+                Query
+              </a-button>
+            </a-form-item>
+            <a-form-item>
+              <a-button type="primary" @click="add()">
+                Add
+              </a-button>
+            </a-form-item>
+          </a-form>
+        </p>
+
         <!-- Init a new table. Columns rule based on columns, and data provided by ebooks.
           -->
       <a-table
@@ -26,9 +45,16 @@
             <a-button type="primary" @click = "edit(record)">
               Edit
             </a-button>
-            <a-button type="danger">
-              Delete
-            </a-button>
+            <a-popconfirm
+                title="This process can't be reverted. Are you sure to remove the id? "
+                ok-text="Yes"
+                cancel-text="No"
+                @confirm="handleDelete(record.id)"
+            >
+              <a-button type="danger">
+                Delete
+              </a-button>
+            </a-popconfirm>
           </a-space>
         </template>
       </a-table>
@@ -63,9 +89,10 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, ref} from 'vue';
+import {defineComponent, onMounted, reactive, ref} from 'vue';
 import axios from 'axios';
 import {message} from "ant-design-vue";
+import {Tool} from '@/util/tool';
 
 export default defineComponent({
   name: 'AdminEbook',
@@ -74,7 +101,7 @@ export default defineComponent({
     const ebooks = ref();
     const pagination = ref({
       current: 1,
-      pageSize: 10,
+      pageSize: 4,
       total: 0
     });
     const loading = ref(false);
@@ -124,16 +151,21 @@ export default defineComponent({
       axios.get("/ebook/list", {
         params: {
           page: params.page,
-          size: params.size
+          size: params.size,
+          name: queryForm.name
         }
       }).then((response) => {
         loading.value = false;
         const data = response.data;
-        ebooks.value = data.content.list;
+        if(data.success) {
+          ebooks.value = data.content.list;
 
-        // Reset Pagination Button
-        pagination.value.current = params.page;
-        pagination.value.total = data.content.total;
+          // Reset Pagination Button
+          pagination.value.current = params.page;
+          pagination.value.total = data.content.total;
+        }else{
+          message.error(data.message);
+        }
       });
     };
 
@@ -148,11 +180,11 @@ export default defineComponent({
       });
     };
 
-    //Table form
+    //Ebook Save Form
     const ebook = ref({
-      name : "default",
-      category1Id : 1,
-      category2Id : 2,
+      name : "",
+      category1Id : 0,
+      category2Id : 0,
       cover: "",
       description : ""
 
@@ -168,7 +200,28 @@ export default defineComponent({
         if (data.success) {
           modalVisible.value = false;
 
-          // 重新加载列表
+          // Reload Table
+          handleQuery({
+            page: pagination.value.current,
+            size: pagination.value.pageSize,
+          });
+        } else {
+          message.error(data.message);
+        }
+      });
+    }
+
+
+    const handleDelete = (id : number) => {
+      modalLoading.value = true;
+
+      axios.delete("/ebook/delete/" + id).then((response) => {
+        modalLoading.value = false;
+        const data = response.data; // data = commonResp
+        if (data.success) {
+          modalVisible.value = false;
+
+          // Reload the Ebook list
           handleQuery({
             page: pagination.value.current,
             size: pagination.value.pageSize,
@@ -181,8 +234,26 @@ export default defineComponent({
 
     const edit = (record: any) => {
       modalVisible.value = true;
-      ebook.value = record;
+      ebook.value = Tool.copy(record);
     };
+
+    const add = () => {
+      modalVisible.value = true;
+      ebook.value = {
+                           name : "",
+                           category1Id : 0,
+                           category2Id : 0,
+                           cover: "",
+                           description : ""
+
+      };
+    };
+
+    const queryForm = reactive({
+      name : ""
+    });
+
+
 
     onMounted(() => {
       handleQuery({
@@ -201,7 +272,11 @@ export default defineComponent({
       modalVisible,
       modalLoading,
       handleModalOk,
-      ebook
+      handleDelete,
+      ebook,
+      add,
+      queryForm,
+      handleQuery,
     }
   }
 });

@@ -10,6 +10,7 @@ import com.hang.wiki.req.EbookSaveReq;
 import com.hang.wiki.resp.EbookQueryResp;
 import com.hang.wiki.resp.PageResp;
 import com.hang.wiki.util.CopyUtil;
+import com.hang.wiki.util.SnowFlake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,10 @@ import java.util.List;
 @Service
 public class EbookService {
     @Autowired
-    private EbookMapper EbookMapper;
+    private EbookMapper ebookMapper;
+
+    @Autowired
+    private SnowFlake snowFlake;
     private static final Logger LOG = LoggerFactory.getLogger(EbookService.class);
     public PageResp<EbookQueryResp> list(EbookQueryReq req){
 
@@ -31,7 +35,7 @@ public class EbookService {
             criteria.andNameLike("%" + req.getName() + "%");
         }
         PageHelper.startPage(req.getPage(),req.getSize());
-        List<Ebook> ebooks = EbookMapper.selectByExample(ebookExample);
+        List<Ebook> ebooks = ebookMapper.selectByExample(ebookExample);
         PageInfo<Ebook> pageInfo = new PageInfo<>(ebooks);
 
 
@@ -48,10 +52,15 @@ public class EbookService {
     public void save(EbookSaveReq req) {
         Ebook ebook = CopyUtil.copy(req,Ebook.class);
         if(ObjectUtils.isEmpty(req.getId())){
-            EbookMapper.insert(ebook);
+            ebook.setId(snowFlake.nextId());
+            ebookMapper.insert(ebook);
         }else{
-            EbookMapper.updateByPrimaryKey(ebook);
+            ebookMapper.updateByPrimaryKey(ebook);
         }
 
+    }
+
+    public void delete(Long id) {
+        ebookMapper.deleteByPrimaryKey(id);
     }
 }

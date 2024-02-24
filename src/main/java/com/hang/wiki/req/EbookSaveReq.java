@@ -1,8 +1,10 @@
 package com.hang.wiki.req;
 
+import javax.validation.constraints.NotNull;
+
 public class EbookSaveReq {
     private Long id;
-
+    @NotNull(message="names should not be null.")
     private String name;
 
     private Long category1Id;
@@ -13,11 +15,11 @@ public class EbookSaveReq {
 
     private String cover;
 
-    private Integer docCount;
+    private Integer docCount = 0;
 
-    private Integer viewCount;
+    private Integer viewCount = 0;
 
-    private Integer voteCount;
+    private Integer voteCount = 0;
 
     public Long getId() {
         return id;
