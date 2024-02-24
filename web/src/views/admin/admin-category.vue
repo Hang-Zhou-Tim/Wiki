@@ -23,7 +23,7 @@
       <a-table
           :columns="columns"
           :row-key="record => record.id"
-          :data-source="categorys"
+          :data-source="level1"
           :loading="loading"
           :pagination="false"
       >
@@ -89,6 +89,7 @@ import {Tool} from '@/util/tool';
 export default defineComponent({
   name: 'AdminCategory',
   setup() {
+    const level1 = ref();
 
     const categorys = ref();
 
@@ -126,8 +127,11 @@ export default defineComponent({
         const data = response.data;
         if(data.success) {
           categorys.value = data.content;
+          console.log("Original Array: ", categorys.value);
 
-
+          level1.value = [];
+          level1.value = Tool.array2TreeNew(categorys.value, 0);
+          console.log("Tree Structure", level1);
         }else{
           message.error(data.message);
         }
@@ -217,6 +221,7 @@ export default defineComponent({
       add,
       queryForm,
       handleQuery,
+      level1,
     }
   }
 });
