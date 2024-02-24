@@ -43,7 +43,7 @@ public class CommonResp<T> {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("ResponseDto{");
+        final StringBuffer sb = new StringBuffer("Responseto{");
         sb.append("success=").append(success);
         sb.append(", message='").append(message).append('\'');
         sb.append(", content=").append(content);
