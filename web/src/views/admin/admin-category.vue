@@ -69,7 +69,17 @@
       </a-form-item>
 
       <a-form-item label="Parent Category">
-        <a-input v-model:value="category.parent" />
+        <a-select
+            v-model:value="category.parent"
+            ref="select"
+        >
+          <a-select-option :value="0">
+            First-Level Category
+          </a-select-option>
+          <a-select-option v-for="c in level1" :key="c.id" :value="c.id" :disabled="category.id === c.id">
+            {{c.name}}
+          </a-select-option>
+        </a-select>
       </a-form-item>
 
       <a-form-item label="Sort">
@@ -142,6 +152,7 @@ export default defineComponent({
 
     //Category Save Form
     const category = ref({
+      id:0,
       name : "",
       parent : 200,
       sort : 100
@@ -192,9 +203,10 @@ export default defineComponent({
     const add = () => {
       modalVisible.value = true;
       category.value = {
-                           name : "",
-                           parent: 0,
-                           sort : 0
+        id:0,
+        name : "",
+        parent: 0,
+        sort : 0
       };
     };
 
