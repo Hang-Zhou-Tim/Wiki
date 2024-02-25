@@ -37,6 +37,10 @@
         <template #cover="{ text: cover }">
           <img v-if="cover" :src="cover" alt="avatar" />
         </template>
+
+        <template v-slot:category="{ text, record }">   <!-- if the dataIndex is not specified, text will be equal to record-->
+          <span>{{ getCategoryName(record.category1Id) }} / {{ getCategoryName(record.category2Id) }}</span>
+        </template>
         <!-- Replace slot in column Action by keyword Edit and Delete Button
              Text represents the value of corresponding data index. Record represent the whole object.
         -->
@@ -62,7 +66,7 @@
   </a-layout>
 
   <a-modal
-    title="Ebook Table"
+    title="Ebook Form"
     v-model:visible="modalVisible"
     :confirm-loading="modalLoading"
     @ok="handleModalOk"
@@ -74,11 +78,13 @@
       <a-form-item label="Name">
         <a-input v-model:value="ebook.name" />
       </a-form-item>
-      <a-form-item label="Category1">
-        <a-input v-model:value="ebook.category1Id" />
-      </a-form-item>
-      <a-form-item label="Category2">
-        <a-input v-model:value="ebook.category2Id" />
+      <!-- Category determined by array of {Id1,Id2} and shown in label Name1/Name2 -->
+      <a-form-item label="Category">
+        <a-cascader
+            v-model:value="categoryIds"
+            :field-names="{ label: 'name', value: 'id', children: 'children' }"
+            :options="level1"
+        />
       </a-form-item>
 
       <a-form-item label="Description">
@@ -97,7 +103,7 @@ import {Tool} from '@/util/tool';
 export default defineComponent({
   name: 'AdminEbook',
   setup() {
-
+    const categoryIds = ref();
     const ebooks = ref();
     const pagination = ref({
       current: 1,
@@ -117,12 +123,8 @@ export default defineComponent({
         dataIndex: 'name'
       },
       {
-        title: 'category1',
-        dataIndex: 'category1Id'
-      },
-      {
-        title: 'category2',
-        dataIndex: 'category2Id'
+        title: 'category',
+        slots: { customRender: 'category' }
       },
       {
         title: 'docCount',
@@ -148,6 +150,8 @@ export default defineComponent({
      **/
     const handleQuery = (params: any) => {
       loading.value = true;
+      // Clear the ebook set, otherwise ebook will not be changed in html due to it is ref() instead of reactive()
+      ebooks.value = [];
       axios.get("/ebook/list", {
         params: {
           page: params.page,
@@ -193,6 +197,8 @@ export default defineComponent({
     const modalLoading = ref(false);
     const handleModalOk = () => {
       modalLoading.value = true;
+      ebook.value.category1Id = categoryIds.value[0];
+      ebook.value.category2Id = categoryIds.value[1];
 
       axios.post("/ebook/save", ebook.value).then((response) => {
         modalLoading.value = false;
@@ -210,6 +216,44 @@ export default defineComponent({
         }
       });
     }
+
+    const level1 =  ref();
+    let categorys: any;
+    const handleQueryCategory = () => {
+      loading.value = true;
+      axios.get("/category/all").then((response) => {
+        loading.value = false;
+        const data = response.data;
+        if (data.success) {
+          categorys = data.content;
+          console.log("原始数组：", categorys);
+
+          level1.value = [];
+          level1.value = Tool.array2TreeNew(categorys, 0);
+          console.log("树形结构：", level1.value);
+
+          // 加载完分类后，再加载电子书，否则如果分类树加载很慢，则电子书渲染会报错
+          handleQuery({
+            page: 1,
+            size: pagination.value.pageSize,
+          });
+        } else {
+          message.error(data.message);
+        }
+      });
+    };
+
+    const getCategoryName = (cid: number) => {
+      // console.log(cid)
+      let result = "";
+      categorys.forEach((item: any) => {
+        if (item.id === cid) {
+          // return item.name; // 注意，这里直接return不起作用
+          result = item.name;
+        }
+      });
+      return result;
+    };
 
 
     const handleDelete = (id : number) => {
@@ -235,6 +279,7 @@ export default defineComponent({
     const edit = (record: any) => {
       modalVisible.value = true;
       ebook.value = Tool.copy(record);
+      categoryIds.value = [ebook.value.category1Id, ebook.value.category2Id];
     };
 
     const add = () => {
@@ -260,6 +305,7 @@ export default defineComponent({
         page:pagination.value.current,
         size:pagination.value.pageSize
       });
+      handleQueryCategory();
     });
 
     return {
@@ -277,6 +323,9 @@ export default defineComponent({
       add,
       queryForm,
       handleQuery,
+      getCategoryName,
+      categoryIds,
+      level1,
     }
   }
 });
