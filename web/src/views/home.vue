@@ -5,43 +5,22 @@
 
           mode="inline"
           :style="{ height: '100%', borderRight: 0 }"
+          @click = "handleClick"
       >
-        <a-sub-menu key="sub1">
-          <template #title>
-              <span>
-                <user-outlined />
-                subnav 1
-              </span>
+        <a-menu-item key="welcome">
+          <span>Welcome!</span>
+        </a-menu-item>
+        <a-sub-menu v-for="item in level1" :key="item.id" :disabled="false">
+          <template v-slot:title>
+            <span><user-outlined />{{item.name}}</span>
           </template>
-          <a-menu-item key="1">option1</a-menu-item>
-          <a-menu-item key="2">option2</a-menu-item>
-          <a-menu-item key="3">option3</a-menu-item>
-          <a-menu-item key="4">option4</a-menu-item>
+          <a-menu-item v-for="child in item.children" :key="child.id">
+            <MailOutlined /><span>{{child.name}}</span>
+          </a-menu-item>
         </a-sub-menu>
-        <a-sub-menu key="sub2">
-          <template #title>
-              <span>
-                <laptop-outlined />
-                subnav 2
-              </span>
-          </template>
-          <a-menu-item key="5">option5</a-menu-item>
-          <a-menu-item key="6">option6</a-menu-item>
-          <a-menu-item key="7">option7</a-menu-item>
-          <a-menu-item key="8">option8</a-menu-item>
-        </a-sub-menu>
-        <a-sub-menu key="sub3">
-          <template #title>
-              <span>
-                <notification-outlined />
-                subnav 3
-              </span>
-          </template>
-          <a-menu-item key="9">option9</a-menu-item>
-          <a-menu-item key="10">option10</a-menu-item>
-          <a-menu-item key="11">option11</a-menu-item>
-          <a-menu-item key="12">option12</a-menu-item>
-        </a-sub-menu>
+        <a-menu-item key="tip" :disabled="true">
+          <span>The menu can be modified in category admin panel.</span>
+        </a-menu-item>
       </a-menu>
     </a-layout-sider>
 
@@ -76,25 +55,43 @@
 import {defineComponent, onMounted, reactive, ref} from 'vue';
 import {LikeOutlined, MessageOutlined, StarOutlined} from '@ant-design/icons-vue';
 import axios from 'axios';
-
-const listData: Record<string, string>[] = [];
-
-for (let i = 0; i < 23; i++) {
-  listData.push({
-    href: 'https://www.antdv.com/',
-    title: `ant design vue part ${i}`,
-    avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-    description:
-        'Ant Design, a design language for background applications, is refined by Ant UED Team.',
-    content:
-        'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
-  });
-}
+import {message} from 'ant-design-vue';
+import {Tool} from "@/util/tool";
 
 
 export default defineComponent({
   name: 'Home',
   setup(){
+    const level1 =  ref();
+
+
+    let categorys: any;
+    /**
+     * Search all available category.
+     **/
+    const handleQueryCategory = () => {
+      axios.get("/category/all").then((response) => {
+        const data = response.data;
+        if (data.success) {
+          categorys = data.content;
+
+          // After loading all categories, expand the menu to deepest level.
+          //openKeys.value = [];
+          //for (let i = 0; i < categorys.length; i++) {
+          //  openKeys.value.push(categorys[i].id)
+          //}
+
+          level1.value = [];
+          level1.value = Tool.array2TreeNew(categorys, 0);
+        } else {
+          message.error(data.message);
+        }
+      });
+    };
+
+    const handleClick = (value: any) => {
+      console.log("menu click", value)
+    }
 
     const pagination = {
       onChange: (page: number) => {
@@ -114,6 +111,7 @@ export default defineComponent({
     const ebooks1 = reactive({books:[]});
 
     onMounted( () =>{
+      handleQueryCategory();
       console.log("OnMounted");
       axios.get("/ebook/list?name=").then(
           (response) => {
@@ -127,10 +125,11 @@ export default defineComponent({
     })
 
     return {
-      listData,
       pagination,
       actions,
-      ebooks
+      ebooks,
+      level1,
+      handleClick
     };
   },
   components: {
