@@ -46,8 +46,14 @@
         -->
         <template v-slot:action="{ text, record }">
           <a-space size="small">
+            <router-link to="/admin/doc">
+              <a-button type="primary" >
+                Manage This Ebook
+              </a-button>
+            </router-link>
+
             <a-button type="primary" @click = "edit(record)">
-              Edit
+               Edit
             </a-button>
             <a-popconfirm
                 title="This process can't be reverted. Are you sure to remove the id? "
