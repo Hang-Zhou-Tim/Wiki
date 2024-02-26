@@ -18,7 +18,7 @@
           </a-form>
         </p>
 
-        <!-- Init a new table. Columns rule based on columns, and data provided by categorys.
+        <!-- Init a new table. Columns rule based on columns, and data provided by docs.
           -->
       <a-table
           :columns="columns"
@@ -57,33 +57,33 @@
   </a-layout>
 
   <a-modal
-    title="Category Form"
+    title="Doc Form"
     v-model:visible="modalVisible"
     :confirm-loading="modalLoading"
     @ok="handleModalOk"
   >
-    <a-form :model="category" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+    <a-form :model="doc" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
 
       <a-form-item label="Name">
-        <a-input v-model:value="category.name" />
+        <a-input v-model:value="doc.name" />
       </a-form-item>
 
-      <a-form-item label="Parent Category">
+      <a-form-item label="Parent Doc">
         <a-select
-            v-model:value="category.parent"
+            v-model:value="doc.parent"
             ref="select"
         >
           <a-select-option :value="0">
-            First-Level Category
+            First-Level Doc
           </a-select-option>
-          <a-select-option v-for="c in level1" :key="c.id" :value="c.id" :disabled="category.id === c.id">
+          <a-select-option v-for="c in level1" :key="c.id" :value="c.id" :disabled="doc.id === c.id">
             {{c.name}}
           </a-select-option>
         </a-select>
       </a-form-item>
 
       <a-form-item label="Sort">
-        <a-input v-model:value="category.sort" />
+        <a-input v-model:value="doc.sort" />
       </a-form-item>
 
     </a-form>
@@ -97,11 +97,11 @@ import {message} from "ant-design-vue";
 import {Tool} from '@/util/tool';
 
 export default defineComponent({
-  name: 'AdminCategory',
+  name: 'AdminDoc',
   setup() {
     const level1 = ref();
 
-    const categorys = ref();
+    const docs = ref();
 
     const loading = ref(false);
     //Define column rules here
@@ -112,7 +112,7 @@ export default defineComponent({
         dataIndex: 'name'
       },
       {
-        title: 'parent category',
+        title: 'parent doc',
         key: 'parent',
         dataIndex: 'parent'
       },
@@ -132,15 +132,15 @@ export default defineComponent({
      **/
     const handleQuery = () => {
       loading.value = true;
-      axios.get("/category/all").then((response) => {
+      axios.get("/doc/all").then((response) => {
         loading.value = false;
         const data = response.data;
         if(data.success) {
-          categorys.value = data.content;
-          console.log("Original Array: ", categorys.value);
+          docs.value = data.content;
+          console.log("Original Array: ", docs.value);
 
           level1.value = [];
-          level1.value = Tool.array2TreeNew(categorys.value, 0);
+          level1.value = Tool.array2TreeNew(docs.value, 0);
           console.log("Tree Structure", level1);
         }else{
           message.error(data.message);
@@ -150,8 +150,8 @@ export default defineComponent({
 
 
 
-    //Category Save Form
-    const category = ref({
+    //Doc Save Form
+    const doc = ref({
       id:0,
       name : "",
       parent : 200,
@@ -163,7 +163,7 @@ export default defineComponent({
     const handleModalOk = () => {
       modalLoading.value = true;
 
-      axios.post("/category/save", category.value).then((response) => {
+      axios.post("/doc/save", doc.value).then((response) => {
         modalLoading.value = false;
         const data = response.data; // data = commonResp
         if (data.success) {
@@ -181,13 +181,13 @@ export default defineComponent({
     const handleDelete = (id : number) => {
       modalLoading.value = true;
 
-      axios.delete("/category/delete/" + id).then((response) => {
+      axios.delete("/doc/delete/" + id).then((response) => {
         modalLoading.value = false;
         const data = response.data; // data = commonResp
         if (data.success) {
           modalVisible.value = false;
 
-          // Reload the Category list
+          // Reload the Doc list
           handleQuery();
         } else {
           message.error(data.message);
@@ -197,12 +197,12 @@ export default defineComponent({
 
     const edit = (record: any) => {
       modalVisible.value = true;
-      category.value = Tool.copy(record);
+      doc.value = Tool.copy(record);
     };
 
     const add = () => {
       modalVisible.value = true;
-      category.value = {
+      doc.value = {
         id:0,
         name : "",
         parent: 0,
@@ -221,7 +221,7 @@ export default defineComponent({
     });
 
     return {
-      categorys,
+      docs,
       columns,
       loading,
       edit,
@@ -229,7 +229,7 @@ export default defineComponent({
       modalLoading,
       handleModalOk,
       handleDelete,
-      category,
+      doc,
       add,
       queryForm,
       handleQuery,
