@@ -8,6 +8,7 @@
           @click = "handleClick"
       >
         <a-menu-item key="welcome">
+          <MailOutlined />
           <span>Welcome!</span>
         </a-menu-item>
         <a-sub-menu v-for="item in level1" :key="item.id" :disabled="false">
@@ -27,7 +28,10 @@
     <a-layout-content
         :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
     >
-      <a-list item-layout="vertical" size="large" :grid="{ gutter: 20, column: 3}" :data-source="ebooks">
+      <div class = "welcome" v-show="isWelcome">
+        <h1> Welcome to Hang's Wiki</h1>
+      </div>
+      <a-list v-show="!isWelcome" item-layout="vertical" size="large" :grid="{ gutter: 20, column: 3}" :data-source="ebooks">
 
         <template #renderItem="{ item }">
           <a-list-item key="item.name">
@@ -52,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, reactive, ref} from 'vue';
+import {defineComponent, onMounted, ref} from 'vue';
 import {LikeOutlined, MessageOutlined, StarOutlined} from '@ant-design/icons-vue';
 import axios from 'axios';
 import {message} from 'ant-design-vue';
@@ -64,8 +68,8 @@ export default defineComponent({
   setup(){
     const level1 =  ref();
 
-
     let categorys: any;
+    const isWelcome = ref(true);
     /**
      * Search all available category.
      **/
@@ -89,9 +93,34 @@ export default defineComponent({
       });
     };
 
+
+    let categoryId2 = 0;
+    const ebooks = ref();
+
+    const handleQueryEbook = () => {
+      axios.get("/ebook/list", {
+        params: {
+          page: 1,
+          size: 50, //To be changed with pagination
+          categoryId2: categoryId2
+        }
+      }).then((response) => {
+        const data = response.data;
+        ebooks.value = data.content.list;
+      });
+    };
+
     const handleClick = (value: any) => {
-      console.log("menu click", value)
-    }
+      // console.log("menu click", value)
+      if (value.key === 'welcome') {
+        isWelcome.value = true;
+      } else {
+        categoryId2 = value.key;
+        isWelcome.value = false;
+        handleQueryEbook();
+      }
+      // isShowWelcome.value = value.key === 'welcome';
+    };
 
     const pagination = {
       onChange: (page: number) => {
@@ -107,21 +136,11 @@ export default defineComponent({
     ];
 
     console.log("setup");
-    const ebooks = ref();
-    const ebooks1 = reactive({books:[]});
+
 
     onMounted( () =>{
       handleQueryCategory();
-      console.log("OnMounted");
-      axios.get("/ebook/list?name=").then(
-          (response) => {
-            const data = response.data;
-            ebooks.value = data.content;
-            ebooks1.books = data.content;
-            console.log(response);
-
-          }
-      )
+      handleQueryEbook();
     })
 
     return {
@@ -129,7 +148,8 @@ export default defineComponent({
       actions,
       ebooks,
       level1,
-      handleClick
+      handleClick,
+      isWelcome
     };
   },
   components: {
