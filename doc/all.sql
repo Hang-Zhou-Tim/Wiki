@@ -87,3 +87,11 @@ insert into `doc` (id, ebook_id, parent, name, sort, view_count, vote_count) val
 insert into `doc` (id, ebook_id, parent, name, sort, view_count, vote_count) values (4, 1, 3, 'Sample 2.1', 1, 0, 0);
 insert into `doc` (id, ebook_id, parent, name, sort, view_count, vote_count) values (5, 1, 3, 'Sample 2.2', 2, 0, 0);
 insert into `doc` (id, ebook_id, parent, name, sort, view_count, vote_count) values (6, 1, 5, 'Sample 2.2.1', 1, 0, 0);
+
+-- Content... It is so-called vertical sharding.
+drop table if exists `content`;
+create table `content` (
+                           `id` bigint not null comment 'Document Id',
+                           `content` mediumtext not null comment 'Content',
+                           primary key (`id`)
+) engine=innodb default charset=utf8mb4 comment='Document Content';
