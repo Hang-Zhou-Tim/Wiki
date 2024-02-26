@@ -3,94 +3,92 @@
       <a-layout-content
         :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
       >
-        <p>
-          <a-form layout="inline" :model="queryForm">
-            <a-form-item>
-              <a-button type="primary" @click="handleQuery()">
-                Query
-              </a-button>
-            </a-form-item>
-            <a-form-item>
-              <a-button type="primary" @click="add()">
-                Add
-              </a-button>
-            </a-form-item>
-          </a-form>
-        </p>
-
-        <!-- Init a new table. Columns rule based on columns, and data provided by docs.
-          -->
-      <a-table
-          :columns="columns"
-          :row-key="record => record.id"
-          :data-source="level1"
-          :loading="loading"
-          :pagination="false"
-      >
-
-        <!-- Replace slot in column Cover by img.     -->
-        <template #cover="{ text: cover }">
-          <img v-if="cover" :src="cover" alt="avatar" />
-        </template>
-        <!-- Replace slot in column Action by keyword Edit and Delete Button
-             Text represents the value of corresponding data index. Record represent the whole object.
-        -->
-        <template v-slot:action="{ text, record }">
-          <a-space size="small">
-            <a-button type="primary" @click = "edit(record)">
-              Edit
-            </a-button>
-            <a-popconfirm
-                title="This process can't be reverted. Are you sure to remove the id? "
-                ok-text="Yes"
-                cancel-text="No"
-                @confirm="handleDelete(record.id)"
+        <a-row :gutter="24">
+          <a-col :span="8">
+            <p>
+              <a-form layout="inline" :model="param">
+                <a-form-item>
+                  <a-button type="primary" @click="handleQuery()">
+                    Query
+                  </a-button>
+                </a-form-item>
+                <a-form-item>
+                  <a-button type="primary" @click="add()">
+                    Add
+                  </a-button>
+                </a-form-item>
+              </a-form>
+            </p>
+            <a-table
+                v-if="level1.length > 0"
+                :columns="columns"
+                :row-key="record => record.id"
+                :data-source="level1"
+                :loading="loading"
+                :pagination="false"
+                size="small"
+                :defaultExpandAllRows="true"
             >
-              <a-button type="danger">
-                Delete
-              </a-button>
-            </a-popconfirm>
-          </a-space>
-        </template>
-      </a-table>
-    </a-layout-content>
+              <template #name="{ text, record }">
+                {{record.sort}} {{text}}
+              </template>
+              <template v-slot:action="{ text, record }">
+                <a-space size="small">
+                  <a-button type="primary" @click="edit(record)" size="small">
+                    Edit
+                  </a-button>
+                  <a-popconfirm
+                      title="Confirm Deletion?"
+                      ok-text="Yes"
+                      cancel-text="No"
+                      @confirm="handleDelete(record.id)"
+                  >
+                    <a-button type="danger" size="small">
+                      Delete
+                    </a-button>
+                  </a-popconfirm>
+                </a-space>
+              </template>
+            </a-table>
+          </a-col>
+          <a-col :span="16">
+            <p>
+              <a-form layout="inline" :model="param">
+                <a-form-item>
+                  <a-button type="primary" @click="handleSave()">
+                    Save
+                  </a-button>
+                </a-form-item>
+              </a-form>
+            </p>
+            <a-form :model="doc" layout="vertical">
+              <a-form-item>
+                <a-input v-model:value="doc.name" placeholder="Name"/>
+              </a-form-item>
+              <a-form-item>
+                <a-tree-select
+                    v-model:value="doc.parent"
+                    style="width: 100%"
+                    :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+                    :tree-data="treeSelectData"
+                    placeholder="Select Parent Document"
+                    tree-default-expand-all
+                    :replaceFields="{title: 'name', key: 'id', value: 'id'}"
+                >
+                </a-tree-select>
+              </a-form-item>
+              <a-form-item>
+                <a-input v-model:value="doc.sort" placeholder="顺序"/>
+              </a-form-item>
+
+              <a-form-item>
+                <div id="content"></div>
+              </a-form-item>
+            </a-form>
+          </a-col>
+        </a-row>
+      </a-layout-content>
   </a-layout>
-
-  <a-modal
-    title="Doc Form"
-    v-model:visible="modalVisible"
-    :confirm-loading="modalLoading"
-    @ok="handleModalOk"
-  >
-    <a-form :model="doc" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-
-      <a-form-item label="Name">
-        <a-input v-model:value="doc.name" />
-      </a-form-item>
-
-      <a-form-item label="Parent Doc">
-        <a-tree-select
-            v-model:value="doc.parent"
-            style="width: 100%"
-            :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-            :tree-data="treeSelectData"
-            placeholder="Please select parent document"
-            tree-default-expand-all
-            :replaceFields="{title: 'name', key: 'id', value: 'id'}"
-        >
-        </a-tree-select>
-      </a-form-item>
-
-      <a-form-item label="Sort">
-        <a-input v-model:value="doc.sort" />
-      </a-form-item>
-
-      <a-form-item label="Content">
-        <div id="content"> </div>
-      </a-form-item>
-
-    </a-form>
-  </a-modal>
 </template>
 
 <script lang="ts">
@@ -107,25 +105,17 @@ export default defineComponent({
     const route = useRoute();
 
     const level1 = ref();
+    level1.value = [];
 
     const docs = ref();
 
     const loading = ref(false);
     //Define column rules here
     const columns = [
-
       {
-        title: 'name',
-        dataIndex: 'name'
-      },
-      {
-        title: 'parent doc',
-        key: 'parent',
-        dataIndex: 'parent'
-      },
-      {
-        title: 'Sort',
-        dataIndex: 'Sort'
+        title: '名称',
+        dataIndex: 'name',
+        slots: { customRender: 'name' }
       },
       {
         title: 'Action',
@@ -159,13 +149,19 @@ export default defineComponent({
 
 
     //Doc Save Form
+    const doc = ref();
+    doc.value = {
+      ebookId: route.query.ebookId
+    };
+    const param = ref();
+    param.value = {};
     const treeSelectData = ref();
     treeSelectData.value = [];
-    const doc = ref();
     const modalVisible = ref(false);
     const modalLoading = ref(false);
 
-    const handleModalOk = () => {
+
+    const handleSave = () => {
       modalLoading.value = true;
 
       axios.post("/doc/save", doc.value).then((response) => {
@@ -277,10 +273,7 @@ export default defineComponent({
       //add a new node at the very beginning of the select panel.
       treeSelectData.value.unshift({id:0,name:'Top-Level Document'});
 
-      setTimeout(function(){
-        const editor = new E('#content');
-        editor.create();
-      }, 100);
+
     };
 
     const add = () => {
@@ -297,7 +290,11 @@ export default defineComponent({
 
 
     onMounted(() => {
+      const editor = new E('#content');
+      editor.config.zIndex = 0;
+      editor.create();
       handleQuery();
+
     });
 
     return {
@@ -307,7 +304,8 @@ export default defineComponent({
       edit,
       modalVisible,
       modalLoading,
-      handleModalOk,
+      handleSave,
+      param,
       handleDelete,
       doc,
       add,
