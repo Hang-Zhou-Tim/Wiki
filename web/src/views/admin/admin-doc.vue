@@ -69,17 +69,16 @@
       </a-form-item>
 
       <a-form-item label="Parent Doc">
-        <a-select
+        <a-tree-select
             v-model:value="doc.parent"
-            ref="select"
+            style="width: 100%"
+            :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+            :tree-data="treeSelectData"
+            placeholder="Please select parent document"
+            tree-default-expand-all
+            :replaceFields="{title: 'name', key: 'id', value: 'id'}"
         >
-          <a-select-option :value="0">
-            First-Level Doc
-          </a-select-option>
-          <a-select-option v-for="c in level1" :key="c.id" :value="c.id" :disabled="doc.id === c.id">
-            {{c.name}}
-          </a-select-option>
-        </a-select>
+        </a-tree-select>
       </a-form-item>
 
       <a-form-item label="Sort">
@@ -132,6 +131,7 @@ export default defineComponent({
      **/
     const handleQuery = () => {
       loading.value = true;
+      level1.value = [];
       axios.get("/doc/all").then((response) => {
         loading.value = false;
         const data = response.data;
@@ -151,6 +151,8 @@ export default defineComponent({
 
 
     //Doc Save Form
+    const treeSelectData = ref();
+    treeSelectData.value = [];
     const doc = ref({
       id:0,
       name : "",
@@ -177,6 +179,33 @@ export default defineComponent({
       });
     }
 
+    /**
+     * Disabled the targeted node and all corresponding children node.
+     */
+    const setDisable = (treeSelectData: any, id: any) => {
+      // console.log(treeSelectData, id);
+      // Find target id on the tree, set it and its children to disabled recursively.
+      for (let i = 0; i < treeSelectData.length; i++) {
+        const node = treeSelectData[i];
+        if (node.id === id) {
+          console.log("disabled", node);
+          node.disabled = true;
+
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            for (let j = 0; j < children.length; j++) {
+              setDisable(children, children[j].id)
+            }
+          }
+        } else {
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            setDisable(children, id);
+          }
+        }
+      }
+    };
+
 
     const handleDelete = (id : number) => {
       modalLoading.value = true;
@@ -198,6 +227,11 @@ export default defineComponent({
     const edit = (record: any) => {
       modalVisible.value = true;
       doc.value = Tool.copy(record);
+
+      treeSelectData.value = Tool.copy(level1.value);
+      setDisable(treeSelectData.value, record.id);
+      //add a new node at the very beginning of the select panel.
+      treeSelectData.value.unshift({id:0,name:'Top-Level Document'})
     };
 
     const add = () => {
