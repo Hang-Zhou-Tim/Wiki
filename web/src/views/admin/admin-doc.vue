@@ -85,6 +85,10 @@
         <a-input v-model:value="doc.sort" />
       </a-form-item>
 
+      <a-form-item label="Content">
+        <div id="content"> </div>
+      </a-form-item>
+
     </a-form>
   </a-modal>
 </template>
@@ -95,6 +99,7 @@ import axios from 'axios';
 import {message} from "ant-design-vue";
 import {Tool} from '@/util/tool';
 import {useRoute} from "vue-router";
+import E from 'wangeditor';
 
 export default defineComponent({
   name: 'AdminDoc',
@@ -159,6 +164,7 @@ export default defineComponent({
     const doc = ref();
     const modalVisible = ref(false);
     const modalLoading = ref(false);
+
     const handleModalOk = () => {
       modalLoading.value = true;
 
@@ -269,7 +275,12 @@ export default defineComponent({
       treeSelectData.value = Tool.copy(level1.value);
       setDisable(treeSelectData.value, record.id);
       //add a new node at the very beginning of the select panel.
-      treeSelectData.value.unshift({id:0,name:'Top-Level Document'})
+      treeSelectData.value.unshift({id:0,name:'Top-Level Document'});
+
+      setTimeout(function(){
+        const editor = new E('#content');
+        editor.create();
+      }, 100);
     };
 
     const add = () => {
