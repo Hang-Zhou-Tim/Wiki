@@ -94,10 +94,13 @@ import {defineComponent, onMounted, reactive, ref} from 'vue';
 import axios from 'axios';
 import {message} from "ant-design-vue";
 import {Tool} from '@/util/tool';
+import {useRoute} from "vue-router";
 
 export default defineComponent({
   name: 'AdminDoc',
   setup() {
+    const route = useRoute();
+
     const level1 = ref();
 
     const docs = ref();
@@ -153,13 +156,7 @@ export default defineComponent({
     //Doc Save Form
     const treeSelectData = ref();
     treeSelectData.value = [];
-    const doc = ref({
-      id:0,
-      name : "",
-      parent : 200,
-      sort : 100
-
-    });
+    const doc = ref();
     const modalVisible = ref(false);
     const modalLoading = ref(false);
     const handleModalOk = () => {
@@ -181,6 +178,7 @@ export default defineComponent({
 
     /**
      * Disabled the targeted node and all corresponding children node.
+     * This is suboptimal. Better way is to find the node with the id, and then recursively delete that sub-tree.
      */
     const setDisable = (treeSelectData: any, id: any) => {
       // console.log(treeSelectData, id);
@@ -206,23 +204,63 @@ export default defineComponent({
       }
     };
 
+    const deleteIds: Array<string> = [];
+    const deleteNames: Array<string> = [];
+    /**
+     * Find all ids to be deleted
+     */
+    const getDeleteIds = (treeSelectData: any, id: any) => {
+      // console.log(treeSelectData, id);
+      for (let i = 0; i < treeSelectData.length; i++) {
+        const node = treeSelectData[i];
+        if (node.id === id) {
+          console.log("delete", node);
+          deleteIds.push(id);
+          deleteNames.push(node.name);
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            for (let j = 0; j < children.length; j++) {
+              getDeleteIds(children, children[j].id)
+            }
+          }
+        } else {
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            getDeleteIds(children, id);
+          }
+        }
+      }
+    };
 
-    const handleDelete = (id : number) => {
-      modalLoading.value = true;
 
-      axios.delete("/doc/delete/" + id).then((response) => {
-        modalLoading.value = false;
+    const handleDelete = (id: number) => {
+      // console.log(level1, level1.value, id)
+
+      deleteIds.length = 0;
+      deleteNames.length = 0;
+      getDeleteIds(level1.value, id);
+      axios.delete("/doc/delete/" + deleteIds.join(",")).then((response) => {
         const data = response.data; // data = commonResp
         if (data.success) {
-          modalVisible.value = false;
-
-          // Reload the Doc list
+          // reload the list
           handleQuery();
         } else {
           message.error(data.message);
         }
       });
-    }
+      /*
+      Modal.confirm({
+        title: 'Note!',
+        icon: createVNode(ExclamationCircleOutlined),
+        content: 'Are you sure to delete ' + deleteNames.join("，") + "?",
+        onOk() {
+          // console.log(ids)
+
+        },
+      });
+
+       */
+    };
 
     const edit = (record: any) => {
       modalVisible.value = true;
@@ -237,10 +275,7 @@ export default defineComponent({
     const add = () => {
       modalVisible.value = true;
       doc.value = {
-        id:0,
-        name : "",
-        parent: 0,
-        sort : 0
+        ebookId: route.query.ebookid
       };
     };
 
@@ -268,6 +303,7 @@ export default defineComponent({
       queryForm,
       handleQuery,
       level1,
+      treeSelectData,
     }
   }
 });
