@@ -296,8 +296,6 @@ export default defineComponent({
       name : ""
     });
 
-
-
     onMounted(() => {
 
       handleQueryCategory();
