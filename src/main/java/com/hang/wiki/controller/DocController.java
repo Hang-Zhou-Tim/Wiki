@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.LinkedList;
 import java.util.List;
 
 @RestController
@@ -43,10 +44,15 @@ public class DocController {
         return resp;
     }
 
-    @DeleteMapping("/delete/{id}")
-    public CommonResp<PageResp<DocQueryResp>> delete(@PathVariable Long id){
+    @DeleteMapping("/delete/{ids}")
+    public CommonResp<PageResp<DocQueryResp>> delete(@PathVariable String ids){
         CommonResp<PageResp<DocQueryResp>> resp = new CommonResp<>();
-        docService.delete(id);
+        String[] idArray = ids.split(",");
+        List<Long> idList = new LinkedList<Long>();
+        for(String id:idArray){
+            idList.add(Long.valueOf(id));
+        }
+        docService.delete(idList);
         return resp;
     }
 }
