@@ -7,6 +7,7 @@ import com.hang.wiki.resp.PageResp;
 import com.hang.wiki.resp.UserQueryResp;
 import com.hang.wiki.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -28,6 +29,7 @@ public class UserController {
 
     @PostMapping("/save")
     public CommonResp<PageResp<UserQueryResp>> save(@Valid @RequestBody UserSaveReq req){
+        req.setPassword(DigestUtils.md5DigestAsHex(req.getPassword().getBytes()));
         CommonResp<PageResp<UserQueryResp>> resp = new CommonResp<>();
         userService.save(req);
         return resp;

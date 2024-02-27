@@ -61,10 +61,11 @@ public class UserService {
             }else{
                 throw new BusinessException(BusinessExceptionCode.USER_LOGIN_NAME_EXIST);
             }
-
         }else{
+            //Business Logic specifies to not update login name.
+            user.setLoginName(null);
             // Update
-            userMapper.updateByPrimaryKey(user);
+            userMapper.updateByPrimaryKeySelective(user);
         }
 
     }
