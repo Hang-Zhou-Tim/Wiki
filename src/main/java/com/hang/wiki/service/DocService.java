@@ -35,14 +35,15 @@ public class DocService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DocService.class);
 
-    public List<DocQueryResp> all(){
+    public List<DocQueryResp> all(Long ebookId){
         DocExample docExample = new DocExample();
+        docExample.createCriteria().andEbookIdEqualTo(ebookId);
         docExample.setOrderByClause("sort asc");
-        List<Doc> categories = docMapper.selectByExample(docExample);
+        List<Doc> docList = docMapper.selectByExample(docExample);
 
-        List<DocQueryResp> docList = CopyUtil.copyList(categories, DocQueryResp.class);
+        List<DocQueryResp> list = CopyUtil.copyList(docList, DocQueryResp.class);
 
-        return docList;
+        return list;
     }
 
     public PageResp<DocQueryResp> list(DocQueryReq req){
@@ -102,7 +103,7 @@ public class DocService {
 
     public String findContent(Long id) {
         Content content = contentMapper.selectByPrimaryKey(id);
-        String res = content == null ? "" : content.getContent();
+        String res = content == null ? "" : ObjectUtils.isEmpty(content.getContent()) ? "" : content.getContent();
         return res;
     }
 }
