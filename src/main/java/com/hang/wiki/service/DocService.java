@@ -99,4 +99,10 @@ public class DocService {
 
         docMapper.deleteByExample(docExample);
     }
+
+    public String findContent(Long id) {
+        Content content = contentMapper.selectByPrimaryKey(id);
+        String res = content == null ? "" : content.getContent();
+        return res;
+    }
 }

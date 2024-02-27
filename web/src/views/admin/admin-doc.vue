@@ -146,6 +146,17 @@ export default defineComponent({
       });
     };
 
+    const handleQueryContent = () => {
+      axios.get("/doc/findContent/" + doc.value.id).then((response) => {
+        const data = response.data;
+        if(data.success) {
+          editor.txt.html(data.content);
+          }else{
+          message.error(data.message);
+        }
+      });
+    };
+
 
 
     //Doc Save Form
@@ -161,7 +172,6 @@ export default defineComponent({
     const modalLoading = ref(false);
     let editor:E;
 
-
     const handleSave = () => {
       modalLoading.value = true;
       doc.value.content = editor.txt.html();
@@ -169,8 +179,8 @@ export default defineComponent({
         modalLoading.value = false;
         const data = response.data; // data = commonResp
         if (data.success) {
-          modalVisible.value = false;
-
+          message.success("Save Successfully.");
+          //modalVisible.value = false;
           // Reload Table
           handleQuery();
         } else {
@@ -266,22 +276,26 @@ export default defineComponent({
     };
 
     const edit = (record: any) => {
-      modalVisible.value = true;
+      editor.txt.html("");
+
       doc.value = Tool.copy(record);
+      handleQueryContent()
 
       treeSelectData.value = Tool.copy(level1.value);
       setDisable(treeSelectData.value, record.id);
       //add a new node at the very beginning of the select panel.
       treeSelectData.value.unshift({id:0,name:'Top-Level Document'});
-
-
     };
 
     const add = () => {
-      modalVisible.value = true;
+      editor.txt.html("");
+      //modalVisible.value = true;
       doc.value = {
         ebookId: route.query.ebookid
       };
+
+      treeSelectData.value = Tool.copy(level1.value) || [];
+      treeSelectData.value.unshift({id:0,name:'Top-Level Document'});
     };
 
     const queryForm = reactive({
