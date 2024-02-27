@@ -1,6 +1,6 @@
 package com.hang.wiki.controller;
 
-//import com.hang.wiki.exception.BusinessException;
+import com.hang.wiki.exception.BusinessException;
 import com.hang.wiki.resp.CommonResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +30,6 @@ public class ControllerExceptionHandler {
         return commonResp;
     }
 
-    /**
-     *
-     * @param e
-     * @return
-
     @ExceptionHandler(value = BusinessException.class)
     @ResponseBody
     public CommonResp validExceptionHandler(BusinessException e) {
@@ -45,20 +40,21 @@ public class ControllerExceptionHandler {
         return commonResp;
     }
 
-
+    /**
      * Validate Common Failure
      * @param e
      * @return
 
+     */
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public CommonResp validExceptionHandler(Exception e) {
         CommonResp commonResp = new CommonResp();
         LOG.error("System Failed: ", e);
         commonResp.setSuccess(false);
-        commonResp.setMessage("System Failed. Contact Hang.");
+        commonResp.setMessage("System Failed. Please Contact Hang! TvT");
         return commonResp;
     }
 
-    */
+
 }
