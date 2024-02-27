@@ -1,7 +1,7 @@
 <template>
   <a-layout>
     <a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
-      <h3 v-if="level1.length === 0">Sorry, Cannot find any related data. </h3>
+      <h3 v-if="level1.length === 0">There is no content for the Ebook.</h3>
       <a-row>
         <a-col :span="6">
           <a-tree
@@ -133,8 +133,8 @@ export default defineComponent({
 });
 </script>
 <style>
-/* wangeditor默认样式, 参照: http://www.wangeditor.com/doc/pages/02-%E5%86%85%E5%AE%B9%E5%A4%84%E7%90%86/03-%E8%8E%B7%E5%8F%96html.html */
-/* table 样式 */
+/* wangeditor default format, based on: http://www.wangeditor.com/doc/pages/02-%E5%86%85%E5%AE%B9%E5%A4%84%E7%90%86/03-%E8%8E%B7%E5%8F%96html.html */
+/* table format */
 .wangeditor table {
   border-top: 1px solid #ccc;
   border-left: 1px solid #ccc;
