@@ -2,8 +2,10 @@ package com.hang.wiki.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.hang.wiki.domain.Content;
 import com.hang.wiki.domain.Doc;
 import com.hang.wiki.domain.DocExample;
+import com.hang.wiki.mapper.ContentMapper;
 import com.hang.wiki.mapper.DocMapper;
 import com.hang.wiki.req.DocQueryReq;
 import com.hang.wiki.req.DocSaveReq;
@@ -25,7 +27,12 @@ public class DocService {
     private DocMapper docMapper;
 
     @Autowired
+    private ContentMapper contentMapper;
+
+    @Autowired
     private SnowFlake snowFlake;
+
+
     private static final Logger LOG = LoggerFactory.getLogger(DocService.class);
 
     public List<DocQueryResp> all(){
@@ -63,11 +70,20 @@ public class DocService {
 
     public void save(DocSaveReq req) {
         Doc doc = CopyUtil.copy(req,Doc.class);
+        Content content = CopyUtil.copy(req, Content.class);
         if(ObjectUtils.isEmpty(req.getId())){
             doc.setId(snowFlake.nextId());
             docMapper.insert(doc);
+
+            content.setId(doc.getId());
+            contentMapper.insert(content);
         }else{
             docMapper.updateByPrimaryKey(doc);
+            int res = contentMapper.updateByPrimaryKeyWithBLOBs(content);
+            //If there is a document that does not link to its content before.
+            if(res == 0){
+                contentMapper.insert(content);
+            }
         }
 
     }

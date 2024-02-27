@@ -78,7 +78,7 @@
                 </a-tree-select>
               </a-form-item>
               <a-form-item>
-                <a-input v-model:value="doc.sort" placeholder="顺序"/>
+                <a-input v-model:value="doc.sort" placeholder="sequence"/>
               </a-form-item>
 
               <a-form-item>
@@ -159,11 +159,12 @@ export default defineComponent({
     treeSelectData.value = [];
     const modalVisible = ref(false);
     const modalLoading = ref(false);
+    let editor:E;
 
 
     const handleSave = () => {
       modalLoading.value = true;
-
+      doc.value.content = editor.txt.html();
       axios.post("/doc/save", doc.value).then((response) => {
         modalLoading.value = false;
         const data = response.data; // data = commonResp
@@ -290,7 +291,7 @@ export default defineComponent({
 
 
     onMounted(() => {
-      const editor = new E('#content');
+      editor = new E('#content');
       editor.config.zIndex = 0;
       editor.create();
       handleQuery();
