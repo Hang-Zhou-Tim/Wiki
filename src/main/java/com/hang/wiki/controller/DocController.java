@@ -27,12 +27,12 @@ public class DocController {
         resp.setContent(list);
         return resp;
     }
-
-    @GetMapping("/all")
-    public CommonResp<List<DocQueryResp>> all(@Valid DocQueryReq docQueryReq){
+    //Return all document details under the same ebook.
+    @GetMapping("/all/{ebookId}")
+    public CommonResp<List<DocQueryResp>> all(@Valid @PathVariable Long ebookId){
         CommonResp<List<DocQueryResp>> resp = new CommonResp<>();
 
-        List<DocQueryResp> all_doc = docService.all();
+        List<DocQueryResp> all_doc = docService.all(ebookId);
         resp.setContent(all_doc);
         return resp;
     }
