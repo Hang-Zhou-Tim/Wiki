@@ -81,12 +81,20 @@
                 <a-input v-model:value="doc.sort" placeholder="sequence"/>
               </a-form-item>
 
+              <a-button type="primary" @click="handlePreviewContent()">
+                <EyeOutlined /> Content Preview
+              </a-button>
+
               <a-form-item>
                 <div id="content"></div>
               </a-form-item>
             </a-form>
           </a-col>
         </a-row>
+
+        <a-drawer width="900" placement="right" :closable="false" :visible="drawerVisible" @close="onDrawerClose">
+          <div class="wangeditor" :innerHTML="previewHtml"></div>
+        </a-drawer>
       </a-layout-content>
   </a-layout>
 </template>
@@ -130,7 +138,7 @@ export default defineComponent({
     const handleQuery = () => {
       loading.value = true;
       level1.value = [];
-      axios.get("/doc/all").then((response) => {
+      axios.get("/doc/all/" + route.query.ebookId).then((response) => {
         loading.value = false;
         const data = response.data;
         if(data.success) {
@@ -140,6 +148,8 @@ export default defineComponent({
           level1.value = [];
           level1.value = Tool.array2TreeNew(docs.value, 0);
           console.log("Tree Structure", level1);
+          treeSelectData.value = Tool.copy(level1.value) || [];
+          treeSelectData.value.unshift({id: 0, name: 'Root'});
         }else{
           message.error(data.message);
         }
@@ -175,6 +185,7 @@ export default defineComponent({
     const handleSave = () => {
       modalLoading.value = true;
       doc.value.content = editor.txt.html();
+      doc.value.ebookId= route.query.ebookId;
       axios.post("/doc/save", doc.value).then((response) => {
         modalLoading.value = false;
         const data = response.data; // data = commonResp
@@ -302,7 +313,17 @@ export default defineComponent({
       name : ""
     });
 
-
+    //Preview
+    const drawerVisible = ref(false);
+    const previewHtml = ref();
+    const handlePreviewContent = () => {
+      const html = editor.txt.html();
+      previewHtml.value = html;
+      drawerVisible.value = true;
+    };
+    const onDrawerClose = () => {
+      drawerVisible.value = false;
+    };
 
     onMounted(() => {
       editor = new E('#content');
@@ -326,8 +347,12 @@ export default defineComponent({
       add,
       queryForm,
       handleQuery,
+      handlePreviewContent,
+      drawerVisible,
       level1,
       treeSelectData,
+      previewHtml,
+      onDrawerClose
     }
   }
 });
