@@ -8,7 +8,6 @@ import * as Icons from '@ant-design/icons-vue';
 import axios from "axios";
 
 axios.defaults.baseURL = process.env.VUE_APP_SERVER;
-
 axios.interceptors.request.use(function (config) {
     console.log('请求参数：', config);
 
