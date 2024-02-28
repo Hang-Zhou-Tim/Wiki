@@ -4,35 +4,57 @@
 
 <template>
   <a-layout-header class="header">
-    <div class="logo" />
-    <a-menu
-        theme="dark"
-        mode="horizontal"
-        :style="{ lineHeight: '64px' }"
-    >
-      <a-menu-item key="/">
-        <router-link to="/">Home</router-link>
-      </a-menu-item>
-      <a-menu-item key="/admin/user">
-        <router-link to="/admin/user">User Admin</router-link>
-      </a-menu-item>
-      <a-menu-item key="/admin/ebook">
-        <router-link to="/admin/ebook">Ebook Admin</router-link>
-      </a-menu-item>
-      <a-menu-item key="/admin/category">
-        <router-link to="/admin/category">Category Admin</router-link>
-      </a-menu-item>
-      <a-menu-item key="/about">
-        <router-link to="/about">About</router-link>
-      </a-menu-item>
+    <a-row>
+      <a-col :span="4">
+        <div class="logo" >Hang's Wiki</div>
+      </a-col>
+      <a-col :span="16">
+        <a-menu
+            theme="dark"
+            mode="horizontal"
+            :style="{ lineHeight: '64px' }"
+        >
+          <a-menu-item key="/">
+            <router-link to="/">Home</router-link>
+          </a-menu-item>
+          <a-menu-item key="/admin/user">
+            <router-link to="/admin/user">User Admin</router-link>
+          </a-menu-item>
+          <a-menu-item key="/admin/ebook">
+            <router-link to="/admin/ebook">Ebook Admin</router-link>
+          </a-menu-item>
+          <a-menu-item key="/admin/category">
+            <router-link to="/admin/category">Category Admin</router-link>
+          </a-menu-item>
+          <a-menu-item key="/about">
+            <router-link to="/about">About</router-link>
+          </a-menu-item>
+        </a-menu>
+      </a-col>
+      <a-col :span="4" v-show="!user.id">
+        <a class="login-menu"  @click="showLoginModal">
+          Login
+        </a>
+      </a-col>
+      <a-col :span="2" v-show="user.id">
+        <a class="login-menu" >
+          <span> Welcome, {{user.name}}</span>
+        </a>
 
-      <a class="login-menu" v-show="user.id">
-        <span> Welcome, {{user.name}}</span>
-      </a>
-      <a class="login-menu" v-show="!user.id" @click="showLoginModal">
-        <span>Login</span>
-      </a>
-    </a-menu>
+      </a-col>
+      <a-col :span="2" v-show="user.id">
+        <a-popconfirm
+            title="Confirm to Logout?"
+            ok-text="Yes"
+            cancel-text="No"
+            @confirm="logout()"
+        >
+          <a class="login-menu">
+            <span>Logout</span>
+          </a>
+        </a-popconfirm>
+      </a-col>
+    </a-row>
 
     <a-modal
         title="Login"
@@ -133,9 +155,12 @@ export default defineComponent({
   color: white;
   font-size: 18px;
 }
+
 .login-menu {
   float: right;
   color: white;
   padding-left: 10px;
 }
+
+
 </style>
