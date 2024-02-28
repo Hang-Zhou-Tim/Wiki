@@ -72,6 +72,14 @@ public class UserController {
         return resp;
     }
 
+    @PostMapping("/logout/{token}")
+    public CommonResp<UserLoginResp> login(@PathVariable String token){
+        CommonResp commonResp = new CommonResp();
+        redisTemplate.delete(token);
+        LOG.info("Delete token: {} from Redis.", token);
+        return commonResp;
+    }
+
     @DeleteMapping("/delete/{id}")
     public CommonResp<PageResp<UserQueryResp>> delete(@PathVariable Long id){
         CommonResp<PageResp<UserQueryResp>> resp = new CommonResp<>();
