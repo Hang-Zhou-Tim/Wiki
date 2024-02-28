@@ -32,7 +32,7 @@
         <template v-slot:action="{ text, record }">
           <a-space size="small">
             <a-button type="primary" @click="resetPassword(record)">
-              Reset
+              Reset Password
             </a-button>
             <a-button type="primary" @click="edit(record)">
               Edit
@@ -44,7 +44,7 @@
                 @confirm="handleDelete(record.id)"
             >
               <a-button type="danger">
-                Reset
+                Delete
               </a-button>
             </a-popconfirm>
           </a-space>
@@ -230,7 +230,7 @@ export default defineComponent({
 
       user.value.password = hexMd5(user.value.password + KEY);
 
-      axios.post("/user/reset-password", user.value).then((response) => {
+      axios.post("/user/resetPassword", user.value).then((response) => {
         resetModalLoading.value = false;
         const data = response.data; // data = commonResp
         if (data.success) {

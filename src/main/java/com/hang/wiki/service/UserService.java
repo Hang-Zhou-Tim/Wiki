@@ -7,9 +7,12 @@ import com.hang.wiki.domain.UserExample;
 import com.hang.wiki.exception.BusinessException;
 import com.hang.wiki.exception.BusinessExceptionCode;
 import com.hang.wiki.mapper.UserMapper;
+import com.hang.wiki.req.UserLoginReq;
 import com.hang.wiki.req.UserQueryReq;
+import com.hang.wiki.req.UserResetPasswordReq;
 import com.hang.wiki.req.UserSaveReq;
 import com.hang.wiki.resp.PageResp;
+import com.hang.wiki.resp.UserLoginResp;
 import com.hang.wiki.resp.UserQueryResp;
 import com.hang.wiki.util.CopyUtil;
 import com.hang.wiki.util.SnowFlake;
@@ -62,11 +65,18 @@ public class UserService {
                 throw new BusinessException(BusinessExceptionCode.USER_LOGIN_NAME_EXIST);
             }
         }else{
-            //Business Logic specifies to not update login name.
+            //Business Logic specifies to not update username and password.
             user.setLoginName(null);
+            user.setPassword(null);
             // Update
             userMapper.updateByPrimaryKeySelective(user);
         }
+    }
+
+    public void resetUserPassword(UserResetPasswordReq req) {
+        User user = CopyUtil.copy(req,User.class);
+        // Update
+        userMapper.updateByPrimaryKeySelective(user);
 
     }
 
@@ -86,5 +96,23 @@ public class UserService {
         return userList.get(0);
 
 
+    }
+
+    public UserLoginResp login(UserLoginReq req) {
+        User userDb = selectByLoginName(req.getLoginName());
+        if(ObjectUtils.isEmpty(userDb)){
+            LOG.info("Username does not exist, {}.", req.getLoginName());
+            throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
+        }else{
+            if(userDb.getPassword().equals(req.getPassword())){
+                UserLoginResp userLoginResp = CopyUtil.copy(userDb, UserLoginResp.class);
+                return userLoginResp;
+            }else{
+                //Password Failed.
+                LOG.info("Password Failed, submitted password:{}, database password: {}", req.getPassword(),userDb.getPassword());
+                throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
+            }
+
+        }
     }
 }
