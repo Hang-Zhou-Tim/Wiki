@@ -2,9 +2,9 @@ package com.hang.wiki.exception;
 
 public enum BusinessExceptionCode {
 
-    USER_LOGIN_NAME_EXIST("登录名已存在"),
-    LOGIN_USER_ERROR("用户名不存在或密码错误"),
-    VOTE_REPEAT("您已点赞过"),
+    USER_LOGIN_NAME_EXIST("Username exists"),
+    LOGIN_USER_ERROR("Username exists or Password fails"),
+    VOTE_REPEAT("You have been voted."),
     ;
 
     private String desc;
