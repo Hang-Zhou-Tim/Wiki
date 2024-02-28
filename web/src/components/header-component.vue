@@ -14,7 +14,7 @@
         <router-link to="/">Home</router-link>
       </a-menu-item>
       <a-menu-item key="/admin/user">
-        <router-link to="/admin/user">User  Admin</router-link>
+        <router-link to="/admin/user">User Admin</router-link>
       </a-menu-item>
       <a-menu-item key="/admin/ebook">
         <router-link to="/admin/ebook">Ebook Admin</router-link>
@@ -26,7 +26,10 @@
         <router-link to="/about">About</router-link>
       </a-menu-item>
 
-      <a class="login-menu" @click="showLoginModal">
+      <a class="login-menu" v-show="user.id">
+        <span> Welcome, {{user.name}}</span>
+      </a>
+      <a class="login-menu" v-show="!user.id" @click="showLoginModal">
         <span>Login</span>
       </a>
     </a-menu>
@@ -62,7 +65,7 @@ export default defineComponent({
   name: 'the-header',
   setup () {
     // Save after login
-    //const user = computed(() => store.state.user);
+    const user = computed(() => store.state.user);
 
     // User to login
     const loginUser = ref({
@@ -86,27 +89,26 @@ export default defineComponent({
         if (data.success) {
           loginModalVisible.value = false;
           message.success("Login Successfully！");
-
-          //store.commit("setUser", data.content);
+          store.commit("setUser", data.content);
         } else {
           message.error(data.message);
         }
       });
     };
 
-    // // Logout
-    // const logout = () => {
-    //   console.log("Start Logout");
-    //   axios.get('/user/logout/' + user.value.token).then((response) => {
-    //     const data = response.data;
-    //     if (data.success) {
-    //       message.success("退出登录成功！");
-    //       store.commit("setUser", {});
-    //     } else {
-    //       message.error(data.message);
-    //     }
-    //   });
-    // };
+    // Logout
+    const logout = () => {
+      console.log("Start Logout");
+      axios.get('/user/logout/' + user.value.token).then((response) => {
+        const data = response.data;
+        if (data.success) {
+          message.success("User Logout Successfully.");
+          store.commit("setUser", {});
+        } else {
+          message.error(data.message);
+        }
+      });
+    };
 
     return {
       loginModalVisible,
@@ -114,8 +116,8 @@ export default defineComponent({
       showLoginModal,
       loginUser,
       login,
-      //user,
-      //logout
+      user,
+      logout
     }
   }
 });

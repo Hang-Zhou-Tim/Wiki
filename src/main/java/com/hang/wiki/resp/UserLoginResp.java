@@ -1,11 +1,33 @@
  package com.hang.wiki.resp;
 
-public class UserLoginResp {
+ import java.io.Serializable;
+
+ public class UserLoginResp implements Serializable {
     private Long id;
 
     private String loginName;
 
     private String name;
+    private String token;
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("UserLoginResp{");
+        sb.append("id=").append(id);
+        sb.append(", loginName='").append(loginName).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", token='").append(token).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     public Long getId() {
         return id;
@@ -35,17 +57,4 @@ public class UserLoginResp {
     }
 
 
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", loginName=").append(loginName);
-        sb.append(", name=").append(name);
-        sb.append("]");
-        return sb.toString();
-    }
 }
