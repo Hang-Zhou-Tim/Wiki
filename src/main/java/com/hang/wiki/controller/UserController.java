@@ -67,15 +67,15 @@ public class UserController {
         LOG.info("Generate and Put Login token in Redis.");
         Long token = snowFlake.nextId();
         userLoginResp.setToken(token.toString());
-        redisTemplate.opsForValue().set(token,userLoginResp,3600*24, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(token.toString(),userLoginResp,3600*24, TimeUnit.SECONDS);
         resp.setContent(userLoginResp);
         return resp;
     }
 
-    @PostMapping("/logout/{token}")
+    @GetMapping("/logout/{token}")
     public CommonResp<UserLoginResp> login(@PathVariable String token){
         CommonResp commonResp = new CommonResp();
-        redisTemplate.delete(token);
+        redisTemplate.delete(token.toString());
         LOG.info("Delete token: {} from Redis.", token);
         return commonResp;
     }
