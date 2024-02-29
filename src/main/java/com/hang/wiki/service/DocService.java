@@ -18,6 +18,7 @@ import com.hang.wiki.util.CopyUtil;
 import com.hang.wiki.util.RedisUtil;
 import com.hang.wiki.util.RequestContext;
 import com.hang.wiki.util.SnowFlake;
+import com.hang.wiki.websocket.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,10 @@ public class DocService {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
+
 
 
     private static final Logger LOG = LoggerFactory.getLogger(DocService.class);
@@ -125,11 +130,11 @@ public class DocService {
         String ip = RequestContext.getRemoteAddr();
         if(redisUtil.validateRepeat(id+ip,3600*24)){
             docMapperCust.increaseVoteCount(id);
+            Doc Document = docMapper.selectByPrimaryKey(id);
+            if(Document!=null) webSocketServer.sendInfo("【" + Document.getName() + "】 is upvoted!");
         }else{
             throw new BusinessException(BusinessExceptionCode.VOTE_REPEAT);
         }
-
-
     }
 
     public void updateEbookInfo() {
