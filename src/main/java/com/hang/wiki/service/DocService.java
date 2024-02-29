@@ -21,6 +21,7 @@ import com.hang.wiki.util.SnowFlake;
 import com.hang.wiki.websocket.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -46,6 +47,9 @@ public class DocService {
 
     @Autowired
     private WebSocketServer webSocketServer;
+
+    @Autowired
+    WsService wsService;
 
 
 
@@ -131,7 +135,9 @@ public class DocService {
         if(redisUtil.validateRepeat(id+ip,3600*24)){
             docMapperCust.increaseVoteCount(id);
             Doc Document = docMapper.selectByPrimaryKey(id);
-            if(Document!=null) webSocketServer.sendInfo("【" + Document.getName() + "】 is upvoted!");
+
+            String logId = MDC.get("LOG_ID");
+            if(Document!=null) wsService.sendInfo("【" + Document.getName() + "】 is upvoted!", logId);
         }else{
             throw new BusinessException(BusinessExceptionCode.VOTE_REPEAT);
         }
