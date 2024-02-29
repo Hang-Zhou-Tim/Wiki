@@ -7,6 +7,7 @@ import com.hang.wiki.domain.Doc;
 import com.hang.wiki.domain.DocExample;
 import com.hang.wiki.mapper.ContentMapper;
 import com.hang.wiki.mapper.DocMapper;
+import com.hang.wiki.mapper.DocMapperCust;
 import com.hang.wiki.req.DocQueryReq;
 import com.hang.wiki.req.DocSaveReq;
 import com.hang.wiki.resp.DocQueryResp;
@@ -25,6 +26,9 @@ import java.util.List;
 public class DocService {
     @Autowired
     private DocMapper docMapper;
+
+    @Autowired
+    private DocMapperCust docMapperCust;
 
     @Autowired
     private ContentMapper contentMapper;
@@ -74,6 +78,8 @@ public class DocService {
         Content content = CopyUtil.copy(req, Content.class);
         if(ObjectUtils.isEmpty(req.getId())){
             doc.setId(snowFlake.nextId());
+            doc.setViewCount(0);
+            doc.setVoteCount(0);
             docMapper.insert(doc);
 
             content.setId(doc.getId());
@@ -103,7 +109,12 @@ public class DocService {
 
     public String findContent(Long id) {
         Content content = contentMapper.selectByPrimaryKey(id);
+        docMapperCust.increaseViewCount(id);
         String res = content == null ? "" : ObjectUtils.isEmpty(content.getContent()) ? "" : content.getContent();
         return res;
+    }
+
+    public void vote(Long id) {
+        docMapperCust.increaseVoteCount(id);
     }
 }

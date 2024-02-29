@@ -16,20 +16,20 @@
         </a-col>
         <a-col :span="18">
           <div class="wangeditor" :innerHTML="html">
-<!--          <div>-->
-<!--            <h2>{{doc.name}}</h2>-->
-<!--            <div>-->
-<!--              <span>Read count: {{doc.viewCount}}</span> &nbsp; &nbsp;-->
-<!--              <span>Vote count: {{doc.voteCount}}</span>-->
-<!--            </div>-->
-<!--            <a-divider style="height: 2px; background-color: #9999cc"/>-->
-<!--          </div>-->
-<!--          <div class="wangeditor" :innerHTML="html"></div>-->
-<!--          <div class="vote-div">-->
-<!--            <a-button type="primary" shape="round" :size="'large'" @click="vote">-->
-<!--              <template #icon><LikeOutlined /> &nbsp;Vote:{{doc.voteCount}} </template>-->
-<!--            </a-button>-->
-<!--          </div>-->
+          <div>
+            <h2>{{doc.name}}</h2>
+            <div>
+              <span>Read count: {{doc.viewCount}}</span> &nbsp; &nbsp;
+              <span>Vote count: {{doc.voteCount}}</span>
+            </div>
+            <a-divider style="height: 2px; background-color: #9999cc"/>
+          </div>
+          <div class="wangeditor" :innerHTML="html"></div>
+          <div class="vote-div">
+            <a-button type="primary" shape="round" :size="'large'" @click="vote">
+              <template #icon><LikeOutlined /> &nbsp;Vote:{{doc.voteCount}} </template>
+            </a-button>
+          </div>
           </div>
         </a-col>
       </a-row>
@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, ref} from 'vue';
+import {defineComponent, onMounted, Ref, ref} from 'vue';
 import axios from 'axios';
 import {message} from 'ant-design-vue';
 import {Tool} from "@/util/tool";
@@ -50,11 +50,20 @@ export default defineComponent({
     const route = useRoute();
     const docs = ref();
     const html = ref();
+    const doc:Ref<{
+      id:number,
+      name : string,
+      viewCount : number,
+      voteCount: number }> = ref({
+      id:0,
+      name : "",
+      viewCount : 0,
+      voteCount: 0}
+    );
     const defaultSelectedKeys = ref();
     defaultSelectedKeys.value = [];
-    // Record details of currently selected data.
-    const doc = ref();
-    doc.value = {};
+
+
 
     /**
      * First level Nodes
@@ -111,11 +120,22 @@ export default defineComponent({
     const onSelect = (selectedKeys: any, info: any) => {
       console.log('selected', selectedKeys, info);
       if (Tool.isNotEmpty(selectedKeys)) {
-        // Select the node
+        // First Selected object
         doc.value = info.selectedNodes[0].props;
         // Load the content of the node
         handleQueryContent(selectedKeys[0]);
       }
+    };
+
+    const vote = () => {
+      axios.get("/doc/vote/" + doc.value.id).then((response) => {
+        const data = response.data;
+        if (data.success) {
+          data.value.voteCount++;
+        } else {
+          message.error(data.message);
+        }
+      });
     };
 
     onMounted(() => {
@@ -127,7 +147,8 @@ export default defineComponent({
       html,
       onSelect,
       defaultSelectedKeys,
-      doc
+      doc,
+      vote,
     }
   }
 });
@@ -150,7 +171,7 @@ export default defineComponent({
   text-align: center;
 }
 
-/* blockquote 样式 */
+/* blockquote format */
 .wangeditor blockquote {
   display: block;
   border-left: 8px solid #d0e5f2;
@@ -161,7 +182,7 @@ export default defineComponent({
   background-color: #f1f1f1;
 }
 
-/* code 样式 */
+/* code format */
 .wangeditor code {
   display: inline-block;
   *display: inline;
