@@ -107,3 +107,7 @@ create table `user` (
 ) engine=innodb default charset=utf8mb4 comment='User';
 
 insert into `user` (id, `login_name`, `name`, `password`) values (1, 'test', 'test', 'e70e2222a9d67c4f2eae107533359aa4');
+# Count 1 means count the row number belonged to each ebook_id, including null row.
+update ebook t1, (select doc.ebook_id,count(1) doc_count, sum(view_count) view_count, sum(vote_count) vote_count from doc group by ebook_id) t2
+set t1.doc_count = t2.doc_count, t1.view_count = t2.view_count, t1.vote_count = t2.vote_count
+where t1.id = t2.ebook_id

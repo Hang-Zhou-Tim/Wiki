@@ -15,7 +15,6 @@
           </a-tree>
         </a-col>
         <a-col :span="18">
-          <div class="wangeditor" :innerHTML="html">
           <div>
             <h2>{{doc.name}}</h2>
             <div>
@@ -29,7 +28,6 @@
             <a-button type="primary" shape="round" :size="'large'" @click="vote">
               <template #icon><LikeOutlined /> &nbsp;Vote:{{doc.voteCount}} </template>
             </a-button>
-          </div>
           </div>
         </a-col>
       </a-row>
@@ -131,7 +129,7 @@ export default defineComponent({
       axios.get("/doc/vote/" + doc.value.id).then((response) => {
         const data = response.data;
         if (data.success) {
-          data.value.voteCount++;
+          doc.value.voteCount++;
         } else {
           message.error(data.message);
         }

@@ -5,6 +5,8 @@ import com.github.pagehelper.PageInfo;
 import com.hang.wiki.domain.Content;
 import com.hang.wiki.domain.Doc;
 import com.hang.wiki.domain.DocExample;
+import com.hang.wiki.exception.BusinessException;
+import com.hang.wiki.exception.BusinessExceptionCode;
 import com.hang.wiki.mapper.ContentMapper;
 import com.hang.wiki.mapper.DocMapper;
 import com.hang.wiki.mapper.DocMapperCust;
@@ -13,6 +15,8 @@ import com.hang.wiki.req.DocSaveReq;
 import com.hang.wiki.resp.DocQueryResp;
 import com.hang.wiki.resp.PageResp;
 import com.hang.wiki.util.CopyUtil;
+import com.hang.wiki.util.RedisUtil;
+import com.hang.wiki.util.RequestContext;
 import com.hang.wiki.util.SnowFlake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +39,9 @@ public class DocService {
 
     @Autowired
     private SnowFlake snowFlake;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
 
     private static final Logger LOG = LoggerFactory.getLogger(DocService.class);
@@ -115,6 +122,17 @@ public class DocService {
     }
 
     public void vote(Long id) {
-        docMapperCust.increaseVoteCount(id);
+        String ip = RequestContext.getRemoteAddr();
+        if(redisUtil.validateRepeat(id+ip,3600*24)){
+            docMapperCust.increaseVoteCount(id);
+        }else{
+            throw new BusinessException(BusinessExceptionCode.VOTE_REPEAT);
+        }
+
+
+    }
+
+    public void updateEbookInfo() {
+        docMapperCust.updateEbookInfo();
     }
 }
