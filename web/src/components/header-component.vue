@@ -8,7 +8,7 @@
       <a-col :span="4">
         <div class="logo" >Hang's Wiki</div>
       </a-col>
-      <a-col :span="16">
+      <a-col :span="14">
         <a-menu
             theme="dark"
             mode="horizontal"
@@ -31,12 +31,12 @@
           </a-menu-item>
         </a-menu>
       </a-col>
-      <a-col :span="4" v-show="!user.id">
+      <a-col :span="6" v-show="!user.id">
         <a class="login-menu"  @click="showLoginModal">
           Login
         </a>
       </a-col>
-      <a-col :span="2" v-show="user.id">
+      <a-col :span="4" v-show="user.id">
         <a class="login-menu" >
           <span> Welcome, {{user.name}}</span>
         </a>
