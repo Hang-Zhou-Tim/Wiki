@@ -110,4 +110,39 @@ insert into `user` (id, `login_name`, `name`, `password`) values (1, 'test', 'te
 # Count 1 means count the row number belonged to each ebook_id, including null row.
 update ebook t1, (select doc.ebook_id,count(1) doc_count, sum(view_count) view_count, sum(vote_count) vote_count from doc group by ebook_id) t2
 set t1.doc_count = t2.doc_count, t1.view_count = t2.view_count, t1.vote_count = t2.vote_count
-where t1.id = t2.ebook_id
+where t1.id = t2.ebook_id;
+
+
+-- Ebook Snapshot
+drop table if exists `ebook_snapshot`;
+create table `ebook_snapshot` (
+                                  `id` bigint auto_increment not null comment 'id',
+                                  `ebook_id` bigint not null default 0 comment 'ebook id',
+                                  `date` date not null comment 'snapshot',
+                                  `view_count` int not null default 0 comment 'read count',
+                                  `vote_count` int not null default 0 comment 'vote count',
+                                  `view_increase` int not null default 0 comment 'increased views',
+                                  `vote_increase` int not null default 0 comment 'increased votes',
+                                  primary key (`id`),
+                                  unique key `ebook_id_date_unique` (`ebook_id`, `date`)
+) engine=innodb default charset=utf8mb4 comment='ebook snapshot';
+
+
+# "Select 1" will change all returned row's value to 1, .
+# "where false" will not return any result.
+# Only if there does not exist ebook id on today, this sql adds analytic details for all ebooks.
+insert into ebook_snapshot(ebook_id, `date`, view_count, vote_count, view_increase, vote_increase)
+	select id, curdate(), 0, 0, 0, 0 from ebook t1 where not exists(select 1 from ebook_snapshot t2 where t1.id = t2.ebook_id and t2.date = curdate());
+
+update ebook_snapshot t1, ebook t2 set t1.view_count = t2.view_count, t1.vote_count = t2.vote_count where t1.`date` = curdate() and t1.ebook_id = t2.id;
+
+# Get data of yesterday
+select t1.ebook_id, view_count, vote_count from ebook_snapshot t1 where t1.`date` = date_sub(curdate(), interval 1 day);
+
+# We used left-join because it still return shows t1 regardless the ebook does not exist yesterday.
+update ebook_snapshot t1 left join (select ebook_id, view_count, vote_count from ebook_snapshot where `date` = date_sub(curdate(), interval 1 day)) t2
+on t1.ebook_id = t2.ebook_id
+set t1.view_increase = (t1.view_count - ifnull(t2.view_count,0)),
+    t1.vote_increase = (t1.vote_count - ifnull(t2.vote_count,0))
+where t1.`date` = curdate();
+
