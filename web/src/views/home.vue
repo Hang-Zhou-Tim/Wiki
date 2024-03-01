@@ -26,7 +26,7 @@
         :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
     >
       <div class = "welcome" v-show="isWelcome">
-        <h1> Welcome to Hang's Wiki</h1>
+        <StatisticComponent></StatisticComponent>
       </div>
       <a-list v-show="!isWelcome" item-layout="vertical" size="large" :grid="{ gutter: 20, column: 3}" :data-source="ebooks">
 
@@ -68,10 +68,12 @@ import {LikeOutlined, MessageOutlined, StarOutlined} from '@ant-design/icons-vue
 import axios from 'axios';
 import {message} from 'ant-design-vue';
 import {Tool} from "@/util/tool";
+import StatisticComponent from "@/components/statistic-component.vue";
 
 
 export default defineComponent({
   name: 'Home',
+
   setup(){
     const level1 =  ref();
 
@@ -163,7 +165,7 @@ export default defineComponent({
     StarOutlined,
     LikeOutlined,
     MessageOutlined,
-
+    StatisticComponent,
   },
 });
 </script>

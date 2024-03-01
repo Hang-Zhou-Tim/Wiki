@@ -1,0 +1,156 @@
+<template>
+  <div>
+    <div class="tip">
+      <div><b>  Tips：</b></div>
+      <div>1. All statistic data are real with 12 hours delay for performance concern. </div>
+      <div>2. Whenever a document is voted, everyone will get a notification. </div>
+      <div>3. You can extend the left menu after you login and add new categories. </div>
+      <div>4. The document tree can be expanded with unlimited depth. </div>
+    </div>
+
+    <a-row :gutter="16">
+        <a-col :span="8">
+          <a-card title="Total View Count">
+            <a-statistic :value="statistic.viewCount">
+              <template #prefix>
+                <UserOutlined />
+              </template>
+            </a-statistic>
+          </a-card>
+        </a-col>
+        <a-col :span="8">
+          <a-card title="Total Vote Count">
+            <a-statistic :value="statistic.voteCount">
+              <template #prefix>
+                <like-outlined />
+              </template>
+            </a-statistic>
+          </a-card>
+        </a-col>
+
+        <a-col :span="8">
+          <a-card>
+            <a-statistic title="Vote Ratio" :value="statistic.voteCount / statistic.viewCount * 100"
+                         :precision="2"
+                         suffix="%"
+                         :value-style="{ color: '#cf1322' }">
+              <template #prefix>
+                <like-outlined />
+              </template>
+            </a-statistic>
+          </a-card>
+        </a-col>
+      </a-row>
+    <br>
+    <a-row :gutter="16">
+      <a-col :span="12">
+        <a-card>
+          <a-row>
+            <a-col :span="12">
+              <a-statistic title="View Count Today" :value="statistic.todayViewCount" style="margin-right: 50px">
+                <template #prefix>
+                  <UserOutlined />
+                </template>
+              </a-statistic>
+            </a-col>
+            <a-col :span="12">
+              <a-statistic title="Vote Count Today" :value="statistic.todayVoteCount">
+                <template #prefix>
+                  <like-outlined />
+                </template>
+              </a-statistic>
+            </a-col>
+          </a-row>
+        </a-card>
+      </a-col>
+      <a-col :span="12">
+        <a-card>
+          <a-row>
+            <a-col :span="12">
+              <a-statistic
+                  title="View Count Increment for Today"
+                  :value="statistic.todayViewIncrease"
+                  :value-style="{ color: '#0000ff' }"
+              >
+                <template #suffix>
+                  <UserOutlined />
+                </template>
+              </a-statistic>
+            </a-col>
+            <a-col :span="12">
+              <a-statistic
+                  title="View Count Increment Prediction for Today"
+                  :value="statistic.todayViewIncreaseRateAbs"
+                  :precision="2"
+                  suffix="%"
+                  class="demo-class"
+                  :value-style="statistic.todayViewIncreaseRate < 0 ? { color: '#3f8600' } : { color: '#cf1322' }"
+              >
+                <template #prefix>
+                  <arrow-down-outlined v-if="statistic.todayViewIncreaseRate < 0"/>
+                  <arrow-up-outlined v-if="statistic.todayViewIncreaseRate >= 0"/>
+                </template>
+              </a-statistic>
+            </a-col>
+          </a-row>
+        </a-card>
+      </a-col>
+    </a-row>
+  </div>
+</template>
+
+<script lang="ts">
+import {defineComponent, onMounted, ref} from 'vue'
+import axios from 'axios';
+
+//declare let echarts: any;
+
+export default defineComponent({
+  name: 'statistic-component',
+  setup () {
+    const statistic = ref();
+    statistic.value = {}
+
+    const getStatistic = () => {
+      axios.get('/ebook-snapshot/get-statistic').then((response) => {
+        const data = response.data;
+        if (data.success) {
+          const statisticResp = data.content;
+          statistic.value.viewCount = statisticResp[1].viewCount;
+          statistic.value.voteCount = statisticResp[1].voteCount;
+          statistic.value.todayViewCount = statisticResp[1].viewIncrease;
+          statistic.value.todayVoteCount = statisticResp[1].voteIncrease;
+
+          // Percentage of today's seconds elapsed.
+          const now = new Date();
+          const nowRate = (now.getHours() * 60 + now.getMinutes()) / (60 * 24);
+          // console.log(nowRate)
+          statistic.value.todayViewIncrease = parseInt(String(statisticResp[1].viewIncrease / nowRate));
+          // todayViewIncreaseRate: Today's Increment Ratio.
+          statistic.value.todayViewIncreaseRate = (statistic.value.todayViewIncrease - statisticResp[0].viewIncrease) / statisticResp[0].viewIncrease * 100;
+          statistic.value.todayViewIncreaseRateAbs = Math.abs(statistic.value.todayViewIncreaseRate);
+          statistic.value.voteRatio = statistic.value.voteCount / statistic.value.viewCount * 100
+        }
+      });
+    };
+
+    onMounted(() => {
+      getStatistic();
+    });
+
+    return {
+      statistic
+    }
+  }
+});
+</script>
+<style scoped>
+.tip {
+  padding: 10px 5px;
+  margin-bottom: 20px;
+  color: red;
+  border: 1px solid transparent;
+  background: linear-gradient(white,white) padding-box,repeating-linear-gradient(-45deg, black 0, black 25%, white 0, white 50%) 0/.6em .6em;
+  animation:ants 12s linear infinite;
+}
+</style>
