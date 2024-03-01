@@ -1,30 +1,6 @@
-drop table if exists `test`;
-create table `test`
-(
-    `id`   bigint not null comment 'id',
-    `name` varchar(50) comment 'name',
-    `password` varchar(50) comment 'pass',
-    primary key (`id`)
-) engine=innodb default charset=utf8mb4 comment='test';
-
-insert into `test` (id, name, password) values (1,'test','password');
-
-
-drop table if exists `demo`;
-create table demo
-(
-    `id`   bigint not null comment 'id',
-    `name` varchar(50) comment 'name',
-    primary key (`id`)
-) engine=innodb default charset=utf8mb4 comment='test';
-
-
-insert into `demo` (id, name) values (1,'test');
-
-
 drop table if exists `ebook`;
 create table `ebook` (
-                         `id` bigint not null comment 'id',
+                         `id` bigint not null auto_increment comment 'id',
                          `name` varchar(50) comment 'name',
                          `category1_id` bigint comment 'category 1',
                          `category2_id` bigint comment 'category 2',
@@ -68,10 +44,10 @@ insert into `category` (id, parent, name, sort) values (501, 500, 'Server', 501)
 insert into `category` (id, parent, name, sort) values (502, 500, 'Dev Tool', 502);
 insert into `category` (id, parent, name, sort) values (503, 500, 'Top Language', 503);
 
--- 文档表
+-- Document table
 drop table if exists `doc`;
 create table `doc` (
-                       `id` bigint not null comment 'id',
+                       `id` bigint not null auto_increment comment 'id',
                        `ebook_id` bigint not null default 0 comment 'Ebook id',
                        `parent` bigint not null default 0 comment 'Parent id',
                        `name` varchar(50) not null comment 'Name',
@@ -87,6 +63,7 @@ insert into `doc` (id, ebook_id, parent, name, sort, view_count, vote_count) val
 insert into `doc` (id, ebook_id, parent, name, sort, view_count, vote_count) values (4, 1, 3, 'Sample 2.1', 1, 0, 0);
 insert into `doc` (id, ebook_id, parent, name, sort, view_count, vote_count) values (5, 1, 3, 'Sample 2.2', 2, 0, 0);
 insert into `doc` (id, ebook_id, parent, name, sort, view_count, vote_count) values (6, 1, 5, 'Sample 2.2.1', 1, 0, 0);
+insert into `doc` (id, ebook_id, parent, name, sort, view_count, vote_count) values (null, 1, 5, 'Sample 2.2.2', 2, 0, 0);
 
 -- Content... It is so-called vertical sharding.
 drop table if exists `content`;
