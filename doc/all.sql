@@ -1,24 +1,3 @@
-drop table if exists `ebook`;
-create table `ebook` (
-                         `id` bigint not null auto_increment comment 'id',
-                         `name` varchar(50) comment 'name',
-                         `category1_id` bigint comment 'category 1',
-                         `category2_id` bigint comment 'category 2',
-                         `description` varchar(200) comment 'description',
-                         `cover` varchar(200) comment 'cover',
-                         `doc_count` int not null default 0 comment 'doc count',
-                         `view_count` int not null default 0 comment 'view count',
-                         `vote_count` int not null default 0 comment 'vote count',
-                         primary key (`id`)
-) engine=innodb default charset=utf8mb4 comment='Ebook';
-
-insert into `ebook` (id, name, description) values (1, 'Spring Boot Beginner Module', 'Java Development for Beginner，First-Choice Framework in Industrial-Level Application');
-insert into `ebook` (id, name, description) values (2, 'Vue Module Beginner Module', 'Vue Development for Beginner，First-Choice Framework in Industrial-Level Application');
-insert into `ebook` (id, name, description) values (3, 'Python Beginner Module', 'Python Development for Beginner，First-Choice Framework in Industrial-Level Application');
-insert into `ebook` (id, name, description) values (4, 'Mysql Beginner Module', 'MySql Development for Beginner，First-Choice Framework in Industrial-Level Application');
-insert into `ebook` (id, name, description) values (5, 'Oracle Beginner Module', 'Oracle Development for Beginner，First-Choice Framework in Industrial-Level Application');
-
-
 drop table if exists `category`;
 create table `category` (
                             `id` bigint not null comment 'id',
@@ -43,6 +22,30 @@ insert into `category` (id, parent, name, sort) values (500, 000, 'Others', 500)
 insert into `category` (id, parent, name, sort) values (501, 500, 'Server', 501);
 insert into `category` (id, parent, name, sort) values (502, 500, 'Dev Tool', 502);
 insert into `category` (id, parent, name, sort) values (503, 500, 'Top Language', 503);
+
+
+drop table if exists `ebook`;
+create table `ebook` (
+                         `id` bigint not null auto_increment comment 'id',
+                         `name` varchar(50) comment 'name',
+                         `category1_id` bigint comment 'category 1',
+                         `category2_id` bigint comment 'category 2',
+                         `description` varchar(200) comment 'description',
+                         `cover` varchar(200) comment 'cover',
+                         `doc_count` int not null default 0 comment 'doc count',
+                         `view_count` int not null default 0 comment 'view count',
+                         `vote_count` int not null default 0 comment 'vote count',
+                         primary key (`id`)
+) engine=innodb default charset=utf8mb4 comment='Ebook';
+
+insert into `ebook` (id, name, category1_id,category2_id, description) values (1, 'Spring Boot Beginner Module', 200,202, 'Java Development for Beginner，First-Choice Framework in Industrial-Level Application');
+insert into `ebook` (id, name, category1_id,category2_id, description) values (2, 'Vue Module Beginner Module', 100, 101, 'Vue Development for Beginner，First-Choice Framework in Industrial-Level Application');
+insert into `ebook` (id, name, category1_id,category2_id, description) values (3, 'Python Beginner Module', 300, 301, 'Python Development for Beginner，First-Choice Framework in Industrial-Level Application');
+insert into `ebook` (id, name, category1_id,category2_id, description) values (4, 'Mysql Beginner Module', 400, 401, 'MySql Development for Beginner，First-Choice Framework in Industrial-Level Application');
+insert into `ebook` (id, name, category1_id,category2_id, description) values (5, 'Oracle Beginner Module', 400, 401, 'Oracle Development for Beginner，First-Choice Framework in Industrial-Level Application');
+
+
+
 
 -- Document table
 drop table if exists `doc`;
