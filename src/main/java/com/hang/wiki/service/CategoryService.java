@@ -63,8 +63,7 @@ public class CategoryService {
 
     public void save(CategorySaveReq req) {
         Category category = CopyUtil.copy(req,Category.class);
-        if(ObjectUtils.isEmpty(req.getId())){
-            category.setId(snowFlake.nextId());
+        if(categoryMapper.selectByPrimaryKey(req.getId()) == null){
             categoryMapper.insert(category);
         }else{
             categoryMapper.updateByPrimaryKey(category);

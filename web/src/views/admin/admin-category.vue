@@ -64,6 +64,10 @@
   >
     <a-form :model="category" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
 
+      <a-form-item label="Category ID" >
+        <a-input v-model:value="category.id" :disabled="edited" />
+      </a-form-item>
+
       <a-form-item label="Name">
         <a-input v-model:value="category.name" />
       </a-form-item>
@@ -100,6 +104,7 @@ export default defineComponent({
   name: 'AdminCategory',
   setup() {
     const level1 = ref();
+    const edited = ref(false);
 
     const categorys = ref();
 
@@ -153,7 +158,7 @@ export default defineComponent({
 
     //Category Save Form
     const category = ref({
-      id:0,
+      id:1,
       name : "",
       parent : 200,
       sort : 100
@@ -196,11 +201,14 @@ export default defineComponent({
     }
 
     const edit = (record: any) => {
+      edited.value = true;
       modalVisible.value = true;
       category.value = Tool.copy(record);
+
     };
 
     const add = () => {
+      edited.value = false;
       modalVisible.value = true;
       category.value = {
         id:0,
@@ -231,6 +239,7 @@ export default defineComponent({
       handleDelete,
       category,
       add,
+      edited,
       queryForm,
       handleQuery,
       level1,

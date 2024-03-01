@@ -29,8 +29,8 @@
         </a-col>
 
         <a-col :span="8">
-          <a-card>
-            <a-statistic title="Vote Ratio" :value="statistic.voteCount / statistic.viewCount * 100"
+          <a-card title="Vote Ratio">
+            <a-statistic :value="statistic.voteCount / statistic.viewCount * 100"
                          :precision="2"
                          suffix="%"
                          :value-style="{ color: '#cf1322' }">

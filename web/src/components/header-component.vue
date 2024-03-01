@@ -6,7 +6,7 @@
   <a-layout-header class="header">
     <a-row>
       <a-col :span="4">
-        <div class="logo" >Hang's Wiki</div>
+        <div class="logo"><router-link to="/about">Hang's Wiki</router-link></div>
       </a-col>
       <a-col :span="14">
         <a-menu
@@ -26,9 +26,6 @@
           <a-menu-item key="/admin/category" :style="user.id ? {} : {display:'none'}">
             <router-link to="/admin/category">Category Admin</router-link>
           </a-menu-item>
-          <a-menu-item key="/about">
-            <router-link to="/about">About</router-link>
-          </a-menu-item>
         </a-menu>
       </a-col>
       <a-col :span="6" v-show="!user.id">
@@ -36,23 +33,27 @@
           Login
         </a>
       </a-col>
-      <a-col :span="4" v-show="user.id">
-        <a class="login-menu" >
-          <span> Welcome, {{user.name}}</span>
-        </a>
-
-      </a-col>
-      <a-col :span="2" v-show="user.id">
-        <a-popconfirm
-            title="Confirm to Logout?"
-            ok-text="Yes"
-            cancel-text="No"
-            @confirm="logout()"
-        >
-          <a class="login-menu">
-            <span>Logout</span>
+      <a-col :span="6" v-show="user.id">
+        <a-dropdown>
+          <a class="logout">
+            Welcome, {{ user.name }}
+            <DownOutlined/>
           </a>
-        </a-popconfirm>
+          <template #overlay>
+            <a-menu>
+              <a-menu-item key="logout">
+                <a-popconfirm
+                    title="Are you sure to logout? "
+                    ok-text="Yes"
+                    cancel-text="No"
+                    @confirm="logout"
+                >
+                  <span>Logout</span>
+                </a-popconfirm>
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-dropdown>
       </a-col>
     </a-row>
 
@@ -79,12 +80,16 @@ import { defineComponent, ref, computed } from 'vue';
 import axios from 'axios';
 import { message } from 'ant-design-vue';
 import store from "@/store";
+import { DownOutlined } from '@ant-design/icons-vue';
 
 declare let hexMd5: any;
 declare let KEY: any;
 
 export default defineComponent({
   name: 'the-header',
+  components: {
+    DownOutlined
+  },
   setup () {
     // Save after login
     const user = computed(() => store.state.user);
@@ -154,6 +159,12 @@ export default defineComponent({
   float: left;
   color: white;
   font-size: 18px;
+}
+
+.logout {
+  float: right;
+  color: white;
+  font-size: 14px;
 }
 
 .login-menu {
