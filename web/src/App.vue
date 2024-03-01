@@ -1,5 +1,5 @@
 <template>
-  <a-layout>
+  <a-layout id="components-layout-demo-top-side-2">
     <HeaderComponent></HeaderComponent>
     <router-view/>
     <FooterComponent></FooterComponent>
