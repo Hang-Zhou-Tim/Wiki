@@ -97,6 +97,12 @@
       </a-col>
     </a-row>
   </div>
+
+  <a-row>
+    <a-col :span="24" id="main-col">
+      <div id="main" style="width: 100%;height:300px;"></div>
+    </a-col>
+  </a-row>
 </template>
 
 <script lang="ts">
@@ -104,12 +110,12 @@ import {defineComponent, onMounted, ref} from 'vue'
 import axios from 'axios';
 
 //declare let echarts: any;
-
+declare let echarts: any;
 export default defineComponent({
   name: 'statistic-component',
   setup () {
     const statistic = ref();
-    statistic.value = {}
+    statistic.value = {};
 
     const getStatistic = () => {
       axios.get('/ebook-snapshot/get-statistic').then((response) => {
@@ -134,8 +140,89 @@ export default defineComponent({
       });
     };
 
+    const init30DayEcharts = (list: any) => {
+      // Production Env Error: Failed to load chart when switching pages.
+      // Solution: clear id=main and re-init
+      const mainDom = document.getElementById('main-col');
+      if (mainDom) {
+        mainDom.innerHTML = '<div id="main" style="width: 100%;height:300px;"></div>';
+      }
+      // Init Echart
+      const myChart = echarts.init(document.getElementById('main'));
+
+      const xAxis = [];
+      const seriesView = [];
+      const seriesVote = [];
+      for (let i = 0; i < list.length; i++) {
+        const record = list[i];
+        xAxis.push(record.date);
+        seriesView.push(record.viewIncrease);
+        seriesVote.push(record.voteIncrease);
+      }
+
+      // Setup Echart Meta
+      const option = {
+        title: {
+          text: '30 Days Tendency'
+        },
+        tooltip: {
+          trigger: 'axis'
+        },
+        legend: {
+          data: ['Total View Count', 'Total Vote Count']
+        },
+        grid: {
+          left: '1%',
+          right: '3%',
+          bottom: '3%',
+          containLabel: true
+        },
+        toolbox: {
+          feature: {
+            saveAsImage: {}
+          }
+        },
+        xAxis: {
+          type: 'category',
+          boundaryGap: false,
+          data: xAxis
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [
+          {
+            name: 'Total View Count',
+            type: 'line',
+            data: seriesView,
+            smooth: true
+          },
+          {
+            name: 'Total Vote Count',
+            type: 'line',
+            data: seriesVote,
+            smooth: true
+          }
+        ]
+      };
+
+      myChart.setOption(option);
+    };
+
+    const get30DayStatistic = () => {
+      axios.get('/ebook-snapshot/get-30-statistic').then((response) => {
+        const data = response.data;
+        if (data.success) {
+          const statisticList = data.content;
+
+          init30DayEcharts(statisticList)
+        }
+      });
+    };
+
     onMounted(() => {
       getStatistic();
+      get30DayStatistic();
     });
 
     return {

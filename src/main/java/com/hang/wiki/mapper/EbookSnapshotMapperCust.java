@@ -13,4 +13,5 @@ public interface EbookSnapshotMapperCust {
 
     public List<StatisticResp> getStatistics();
 
+    public List<StatisticResp> get30Statistics();
 }

@@ -121,7 +121,7 @@ export default defineComponent({
     //Define column rules here
     const columns = [
       {
-        title: '名称',
+        title: 'name',
         dataIndex: 'name',
         slots: { customRender: 'name' }
       },
