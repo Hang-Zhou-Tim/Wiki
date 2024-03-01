@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 public class CategorySaveReq {
     @NotNull(message = "Id should not be Null!")
     private Long id;
-
+    @NotNull(message = "Parent should not be Null!")
     private Long parent;
     @NotNull(message = "Name should not be Null!")
     private String name;
