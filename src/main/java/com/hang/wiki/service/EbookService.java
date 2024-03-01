@@ -55,7 +55,7 @@ public class EbookService {
     public void save(EbookSaveReq req) {
         Ebook ebook = CopyUtil.copy(req,Ebook.class);
         if(ObjectUtils.isEmpty(req.getId())){
-            ebook.setId(snowFlake.nextId());
+            ebook.setId(null);
             ebookMapper.insert(ebook);
         }else{
             ebookMapper.updateByPrimaryKey(ebook);

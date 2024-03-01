@@ -93,11 +93,12 @@ public class DocService {
         Doc doc = CopyUtil.copy(req,Doc.class);
         Content content = CopyUtil.copy(req, Content.class);
         if(ObjectUtils.isEmpty(req.getId())){
-            doc.setId(snowFlake.nextId());
+            doc.setId(null);
             doc.setViewCount(0);
             doc.setVoteCount(0);
             docMapper.insert(doc);
 
+            //Auto_Generated id returned back to doc object
             content.setId(doc.getId());
             contentMapper.insert(content);
         }else{
