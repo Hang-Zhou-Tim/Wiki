@@ -22,9 +22,9 @@ public class DocJob {
     private SnowFlake snowFlake;
 
     /**
-     * Update Ebook info every 10 min
+     * Update Ebook info every 5 min
      */
-    @Scheduled(cron = "0 0/10 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     public void cron() {
         // Add Log Stream ID
         MDC.put("LOG_ID", String.valueOf(snowFlake.nextId()));

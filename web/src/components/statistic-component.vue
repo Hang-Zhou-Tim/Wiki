@@ -2,7 +2,7 @@
   <div>
     <div class="tip">
       <div><b>  Tips：</b></div>
-      <div>1. All statistic data are real with 12 hours delay for performance concern. </div>
+      <div>1. All statistic data are real with 1 hours delay. </div>
       <div>2. Whenever a document is voted, everyone will get a notification. </div>
       <div>3. You can extend the left menu after you login and add new categories. </div>
       <div>4. The document tree can be expanded with unlimited depth. </div>

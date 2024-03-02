@@ -23,9 +23,9 @@ public class EbookSnapshotJob {
 
     /**
      *
-     * Generate Snapshot every 12 hours.
+     * Generate Snapshot every 2 hour.
      */
-    @Scheduled(cron = "0 0 0/12 * * ?")
+    @Scheduled(cron = "0 0 */2 * * ?")
     public void doSnapshot() {
         MDC.put("LOG_ID", String.valueOf(snowFlake.nextId()));
         LOG.info("Generate Snapshot");
